@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ralph-task-schema",
+  "title": "Ralph Task Spec Schema",
+  "description": "Schema for phase-*.json task specification files",
+
+  "definitions": {
+    "Task": {
+      "type": "object",
+      "required": ["id", "name", "description", "status", "provider", "complexity", "depends_on"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+$",
+          "description": "Task ID in format 'phase.task' (e.g., '1.2')"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short task name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed task description"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed", "blocked"],
+          "description": "Current task status"
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["glm", "anthropic", "gemini"],
+          "description": "Preferred AI provider for this task"
+        },
+        "complexity": {
+          "type": "string",
+          "enum": ["S", "M", "L"],
+          "description": "Task complexity: S=small, M=medium, L=large"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+          "description": "List of task IDs that must complete before this task"
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of criteria to verify task completion"
+        },
+        "files_to_create": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files that should be created by this task"
+        },
+        "files_to_modify": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files that should be modified by this task"
+        },
+        "blocked_reason": {
+          "type": "string",
+          "description": "Reason task is blocked (when status=blocked)"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Phase": {
+      "type": "object",
+      "required": ["phase", "name", "description", "tasks"],
+      "properties": {
+        "phase": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Phase number"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Phase name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Phase description"
+        },
+        "tasks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Task" },
+          "description": "List of tasks in this phase"
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Summary": {
+      "type": "object",
+      "required": ["project", "total_tasks", "completed_tasks", "current_phase", "phases"],
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Project name"
+        },
+        "total_tasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_tasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "current_phase": {
+          "type": "string",
+          "description": "ID of current phase (e.g., 'phase-01-foundation')"
+        },
+        "current_task": {
+          "type": "string",
+          "description": "ID of current task (e.g., '1.2')"
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "tasks", "completed"],
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "tasks": { "type": "integer" },
+              "completed": { "type": "integer" }
+            }
+          }
+        },
+        "by_provider": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
+        "by_complexity": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    }
+  },
+
+  "oneOf": [
+    { "$ref": "#/definitions/Phase" },
+    { "$ref": "#/definitions/Summary" }
+  ]
+}
