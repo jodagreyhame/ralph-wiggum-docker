@@ -18,7 +18,8 @@ secrets.json
 # ══════════════════════════════════════════════════════════════════════════════
 # RALPH LOOP RUNTIME
 # ══════════════════════════════════════════════════════════════════════════════
-logs/
+logs/*
+!logs/.gitkeep
 .project/state/*
 !.project/state/current.json
 .project/review/

@@ -63,6 +63,12 @@ export interface ProviderFallbackConfig {
     sequence: ProviderFallbackEntry[];
 }
 
+export interface TaskModeConfig {
+    enabled: boolean;
+    specs_dir: string;
+    steering_file: string;
+}
+
 export interface ProjectConfig {
     name: string;
     description: string;
@@ -76,6 +82,7 @@ export interface ProjectConfig {
     max_iterations: number;
     completion_enabled: boolean;
     knowledge_dir: string;
+    task_mode?: TaskModeConfig;
 }
 
 // Backend metadata for display

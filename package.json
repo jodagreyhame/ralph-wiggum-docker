@@ -10,7 +10,7 @@
     },
     "scripts": {
         "dev": "bun run src/cli/index.ts",
-        "build": "bun build src/cli/index.ts --outdir dist --target node",
+        "build": "bun build src/cli/index.ts --outdir dist/cli --target node",
         "tui": "bun run src/cli/index.ts tui",
         "lint": "tsc --noEmit",
         "clean": "rm -rf dist"

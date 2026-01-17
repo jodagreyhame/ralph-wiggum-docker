@@ -5,9 +5,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
+import type { ProjectConfig } from '../config/schema.js';
 
 // Get the template directory from the main project
-function getTemplateDir(): string {
+export function getTemplateDir(): string {
     const cwd = process.cwd();
     const possiblePaths = [
         path.join(cwd, 'template'),
@@ -46,7 +47,38 @@ export function copyTemplate(targetDir: string): boolean {
         fs.mkdirSync(logsDir, { recursive: true });
     }
 
+    // Create CLAUDE.md (symlink on Unix, copy on Windows)
+    createClaudeMd(targetDir);
+
     return true;
+}
+
+/**
+ * Create CLAUDE.md pointing to AGENTS.md
+ * On Unix: symlink
+ * On Windows: copy (symlinks require admin)
+ */
+function createClaudeMd(projectDir: string): void {
+    const claudeMd = path.join(projectDir, 'CLAUDE.md');
+    const agentsMd = path.join(projectDir, 'AGENTS.md');
+
+    // Skip if CLAUDE.md already exists or AGENTS.md doesn't exist
+    if (fs.existsSync(claudeMd) || !fs.existsSync(agentsMd)) {
+        return;
+    }
+
+    if (process.platform === 'win32') {
+        // Windows: copy the file
+        fs.copyFileSync(agentsMd, claudeMd);
+    } else {
+        // Unix: create symlink
+        try {
+            fs.symlinkSync('AGENTS.md', claudeMd);
+        } catch {
+            // Fallback to copy if symlink fails
+            fs.copyFileSync(agentsMd, claudeMd);
+        }
+    }
 }
 
 function copyDirRecursive(src: string, dest: string): void {
@@ -62,10 +94,7 @@ function copyDirRecursive(src: string, dest: string): void {
             }
             copyDirRecursive(srcPath, destPath);
         } else {
-            // Don't overwrite config.json - it will be written separately
-            if (entry.name !== 'config.json') {
-                fs.copyFileSync(srcPath, destPath);
-            }
+            fs.copyFileSync(srcPath, destPath);
         }
     }
 }
@@ -81,5 +110,25 @@ export function initGitRepo(projectDir: string): boolean {
         return true;
     } catch {
         return false;
+    }
+}
+
+/**
+ * Load config.json from template directory
+ * This is the canonical source of default configuration
+ */
+export function loadTemplateConfig(): ProjectConfig | null {
+    const templateDir = getTemplateDir();
+    const configPath = path.join(templateDir, 'config.json');
+
+    if (!fs.existsSync(configPath)) {
+        return null;
+    }
+
+    try {
+        const content = fs.readFileSync(configPath, 'utf-8');
+        return JSON.parse(content) as ProjectConfig;
+    } catch {
+        return null;
     }
 }

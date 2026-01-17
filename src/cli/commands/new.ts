@@ -5,8 +5,8 @@
 import chalk from 'chalk';
 import type { NewCommandOptions } from '../flags.js';
 import { parseBoolean } from '../flags.js';
-import { createDefaultConfig, applyPreset, validateConfig, type ProjectConfig, type Backend, type AuthMode } from '../../config/index.js';
-import { getProjectDir, projectExists, saveProjectConfig, slugify } from '../../utils/project.js';
+import { applyPreset, validateConfig, type ProjectConfig, type Backend, type AuthMode } from '../../config/index.js';
+import { getProjectDir, projectExists, loadProjectConfig, saveProjectConfig, slugify } from '../../utils/project.js';
 import { copyTemplate, initGitRepo } from '../../utils/template.js';
 
 export async function newCommand(projectName: string | undefined, options: NewCommandOptions): Promise<void> {
@@ -33,8 +33,29 @@ export async function newCommand(projectName: string | undefined, options: NewCo
         process.exit(1);
     }
 
-    // Create config from defaults
-    let config = createDefaultConfig(name);
+    // Create project directory and copy template (including config.json)
+    const projectDir = getProjectDir(slug);
+    console.log(chalk.dim(`Creating project: ${slug}`));
+
+    const templateCopied = copyTemplate(projectDir);
+    if (!templateCopied) {
+        console.error(chalk.red('Failed to copy template files'));
+        process.exit(1);
+    }
+    console.log(chalk.green('✓ Template files copied'));
+
+    // Load config from template (now in project dir)
+    let config = loadProjectConfig(slug);
+    if (!config) {
+        console.error(chalk.red('Failed to load template config'));
+        process.exit(1);
+    }
+
+    // Update project-specific fields
+    config.name = name;
+    if (options.description) {
+        config.description = options.description;
+    }
 
     // Apply preset if specified
     if (options.preset) {
@@ -55,18 +76,7 @@ export async function newCommand(projectName: string | undefined, options: NewCo
         process.exit(1);
     }
 
-    // Create project directory and copy template
-    const projectDir = getProjectDir(slug);
-    console.log(chalk.dim(`Creating project: ${slug}`));
-
-    const templateCopied = copyTemplate(projectDir);
-    if (!templateCopied) {
-        console.error(chalk.red('Failed to copy template files'));
-        process.exit(1);
-    }
-    console.log(chalk.green('✓ Template files copied'));
-
-    // Save config
+    // Save updated config
     saveProjectConfig(slug, config);
     console.log(chalk.green('✓ Configuration saved'));
 
