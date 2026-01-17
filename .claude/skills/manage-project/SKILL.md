@@ -14,52 +14,71 @@ description: |
 
 Control Docker-based Ralph Loop iterations.
 
+## CLI Commands
+
+Use the `ralph` CLI to manage projects:
+
+```bash
+# Create projects
+ralph new my-project                      # Basic project
+ralph new my-project --preset=three-tier  # With 3-tier review
+ralph new my-project --preset=full        # All features enabled
+
+# List and inspect
+ralph list                                # List all projects
+ralph show my-project                     # Show config
+
+# Validate and delete
+ralph validate .projects/my-project/config.json
+ralph delete my-project --force
+```
+
+See [docs/CLI.md](docs/CLI.md) for full CLI reference.
+
 ## Helper Scripts
 
 ### Run Projects
 
 **Linux/Mac (bash):**
 ```bash
-.claude/skills/orchestrator/scripts/run.sh <project>                    # Run interactively
-.claude/skills/orchestrator/scripts/run.sh <project> --background       # Run in background
-.claude/skills/orchestrator/scripts/run.sh <project> --unlimited        # Unlimited iterations
-.claude/skills/orchestrator/scripts/run.sh <project> -b -u              # Background + unlimited
-.claude/skills/orchestrator/scripts/run.sh <project> --auth anthropic-oauth # Specify auth mode
+.claude/skills/manage-project/scripts/run.sh <project>                    # Run interactively
+.claude/skills/manage-project/scripts/run.sh <project> --background       # Run in background
+.claude/skills/manage-project/scripts/run.sh <project> --unlimited        # Unlimited iterations
+.claude/skills/manage-project/scripts/run.sh <project> -b -u              # Background + unlimited
+.claude/skills/manage-project/scripts/run.sh <project> --auth anthropic-oauth # Specify auth mode
 ```
 
 **Windows (PowerShell):**
 ```powershell
-.\.claude\skills\orchestrator\scripts\run.ps1 <project>                 # Run interactively
-.\.claude\skills\orchestrator\scripts\run.ps1 <project> -Background     # Run in background
-.\.claude\skills\orchestrator\scripts\run.ps1 <project> -Unlimited      # Unlimited iterations
-.\.claude\skills\orchestrator\scripts\run.ps1 <project> -Background -Unlimited  # Both
-.\.claude\skills\orchestrator\scripts\run.ps1 <project> -AuthMode anthropic-oauth   # Specify auth
+.\.claude\skills\manage-project\scripts\run.ps1 <project>                 # Run interactively
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background     # Run in background
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Unlimited      # Unlimited iterations
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background -Unlimited  # Both
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -AuthMode anthropic-oauth   # Specify auth
 ```
 
 ### Stop Projects
 
 ```bash
-.claude/skills/orchestrator/scripts/stop.sh <project>    # Stop specific project
-.claude/skills/orchestrator/scripts/stop.sh --all        # Stop all Ralph containers
+.claude/skills/manage-project/scripts/stop.sh <project>    # Stop specific project
+.claude/skills/manage-project/scripts/stop.sh --all        # Stop all Ralph containers
 ```
 
 ```powershell
-.\.claude\skills\orchestrator\scripts\stop.ps1 <project>  # Stop specific project
-.\.claude\skills\orchestrator\scripts\stop.ps1 -All       # Stop all Ralph containers
+.\.claude\skills\manage-project\scripts\stop.ps1 <project>  # Stop specific project
+.\.claude\skills\manage-project\scripts\stop.ps1 -All       # Stop all Ralph containers
 ```
 
-### Other Scripts
+### Status
 
 **Linux/Mac:**
 ```bash
-.claude/skills/orchestrator/scripts/create-project.sh <project-name>
-.claude/skills/orchestrator/scripts/status.sh [project]
+.claude/skills/manage-project/scripts/status.sh [project]
 ```
 
 **Windows:**
 ```powershell
-.\.claude\skills\orchestrator\scripts\create-project.ps1 <project-name>
-.\.claude\skills\orchestrator\scripts\status.ps1 [project]
+.\.claude\skills\manage-project\scripts\status.ps1 [project]
 ```
 
 ### View Logs & Monitor
@@ -121,12 +140,6 @@ Or on Windows:
 | `opencode-api` | Direct `OPENCODE_API_KEY` |
 | `glm` | z.ai proxy (default) |
 
-## Create Project Manually
-
-1. Copy template: `cp -r template/ .projects/<project>/` or `Copy-Item -Recurse template .projects\<project>`
-2. Edit `.projects/<project>/GOAL.md` with your project objective and completion criteria
-3. Run: `RALPH_PROJECT_DIR=./.projects/<project> docker compose run --rm ralph`
-
 ## Quick Run Commands
 
 ```powershell
@@ -146,7 +159,8 @@ Or on Windows:
 ```
 .projects/<project>/
 ├── GOAL.md                # Project objective (EDIT THIS)
-├── CLAUDE.md              # Development rules
+├── AGENTS.md              # Development rules (canonical)
+├── CLAUDE.md -> AGENTS.md # Symlink for Claude Code
 ├── config.json            # Configuration
 ├── .project/              # State & knowledge
 │   ├── prompts/           # Role prompts (DO NOT EDIT)
