@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <!-- Lightsaber glow filters -->
+    <filter id="blueGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur1"/>
+      <feGaussianBlur stdDeviation="8" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="redGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur1"/>
+      <feGaussianBlur stdDeviation="8" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="yellowGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="blueBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#0066ff"/>
+    </linearGradient>
+    <linearGradient id="redBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#ff3333"/>
+      <stop offset="100%" stop-color="#990000"/>
+    </linearGradient>
+    <linearGradient id="hiltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#666"/>
+      <stop offset="50%" stop-color="#333"/>
+      <stop offset="100%" stop-color="#1a1a1a"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    @keyframes saberPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+    @keyframes saberHum {
+      0%, 100% { transform: scaleX(1); }
+      50% { transform: scaleX(1.02); }
+    }
+    .saber-blue {
+      animation: saberPulse 0.1s ease-in-out infinite, saberHum 0.05s ease-in-out infinite;
+    }
+    .saber-red {
+      animation: saberPulse 0.1s ease-in-out infinite 0.025s, saberHum 0.05s ease-in-out infinite 0.025s;
+    }
+    .title-main {
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+    }
+    .title-sub {
+      font-family: 'Arial Narrow', 'Arial', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+    }
+    .tagline {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-style: italic;
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0a0a1a"/>
+
+  <!-- Left lightsaber (blue - Jedi) -->
+  <g transform="translate(30, 100)">
+    <!-- Hilt -->
+    <rect x="0" y="-8" width="35" height="16" rx="2" fill="url(#hiltGrad)" stroke="#444" stroke-width="1"/>
+    <rect x="5" y="-6" width="3" height="12" fill="#222"/>
+    <rect x="25" y="-6" width="3" height="12" fill="#222"/>
+    <circle cx="17" cy="0" r="3" fill="#111" stroke="#444" stroke-width="0.5"/>
+
+    <!-- Blade -->
+    <g class="saber-blue" filter="url(#blueGlow)">
+      <rect x="35" y="-4" width="120" height="8" rx="4" fill="url(#blueBeam)"/>
+      <rect x="35" y="-2" width="118" height="4" rx="2" fill="#ffffff" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- Right lightsaber (red - Sith) - mirrored -->
+  <g transform="translate(570, 100) scale(-1, 1)">
+    <!-- Hilt -->
+    <rect x="0" y="-8" width="35" height="16" rx="2" fill="url(#hiltGrad)" stroke="#444" stroke-width="1"/>
+    <rect x="5" y="-6" width="3" height="12" fill="#222"/>
+    <rect x="25" y="-6" width="3" height="12" fill="#222"/>
+    <circle cx="17" cy="0" r="3" fill="#111" stroke="#444" stroke-width="0.5"/>
+
+    <!-- Blade -->
+    <g class="saber-red" filter="url(#redGlow)">
+      <rect x="35" y="-4" width="120" height="8" rx="4" fill="url(#redBeam)"/>
+      <rect x="35" y="-2" width="118" height="4" rx="2" fill="#ffffff" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- Title text -->
+  <g filter="url(#yellowGlow)">
+    <text x="300" y="75" text-anchor="middle" class="title-main" font-size="42" fill="#ffe81f">
+      RALPH WIGGUM
+    </text>
+    <text x="300" y="115" text-anchor="middle" class="title-sub" font-size="22" fill="#ffd90f">
+      DOCKER LOOP
+    </text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="300" y="155" text-anchor="middle" class="tagline" font-size="14" fill="#a8d4ff">
+    "May Ralph Wiggum Be With You"
+  </text>
+
+  <!-- Decorative stars -->
+  <circle cx="300" cy="175" r="2" fill="#ffe81f" opacity="0.6"/>
+  <circle cx="280" cy="175" r="1" fill="#fff" opacity="0.4"/>
+  <circle cx="320" cy="175" r="1" fill="#fff" opacity="0.4"/>
+</svg>

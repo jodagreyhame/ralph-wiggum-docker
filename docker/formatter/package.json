@@ -1,0 +1,21 @@
+{
+  "name": "ralph-formatter",
+  "version": "1.0.0",
+  "description": "Claude-style NDJSON stream formatter for AI CLI outputs",
+  "main": "src/index.js",
+  "bin": {
+    "ralph-formatter": "src/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": ["cli", "formatter", "ndjson", "claude", "gemini", "codex", "opencode"],
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

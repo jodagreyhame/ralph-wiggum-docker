@@ -1,0 +1,79 @@
+{
+  "name": "my-project",
+  "description": "Project description",
+  "version": "0.1.0",
+  "prompts": {
+    "dir": ".project/prompts",
+    "goal": "GOAL.md",
+    "builder": "BUILDER.md",
+    "reviewer": "REVIEWER.md",
+    "architect": "ARCHITECT.md"
+  },
+  "builder": {
+    "backend": "claude",
+    "auth_mode": "glm",
+    "model": "glm-4.7",
+    "session_mode": "fresh"
+  },
+  "reviewer": {
+    "enabled": true,
+    "backend": "claude",
+    "auth_mode": "anthropic-oauth",
+    "model": "opus",
+    "session_mode": "fresh"
+  },
+  "architect": {
+    "enabled": true,
+    "backend": "opencode",
+    "auth_mode": "opencode-oauth",
+    "model": "google/antigravity-gemini-3-pro",
+    "session_mode": "resume"
+  },
+  "escalation": {
+    "enabled": true,
+    "max_builder_failures": 3
+  },
+  "provider_fallback": {
+    "enabled": true,
+    "failure_threshold": 10,
+    "sequence": [
+      {
+        "name": "glm",
+        "backend": "claude",
+        "auth_mode": "glm",
+        "model": "glm-4.7"
+      },
+      {
+        "name": "claude",
+        "backend": "claude",
+        "auth_mode": "anthropic-oauth",
+        "model": "opus"
+      },
+      {
+        "name": "gemini",
+        "backend": "gemini",
+        "auth_mode": "gemini-oauth",
+        "model": "gemini-2.5-pro"
+      },
+      {
+        "name": "codex",
+        "backend": "codex",
+        "auth_mode": "openai-oauth"
+      },
+      {
+        "name": "opencode",
+        "backend": "opencode",
+        "auth_mode": "opencode-oauth",
+        "model": "google/antigravity-claude-opus-4-5-thinking"
+      }
+    ]
+  },
+  "max_iterations": 0,
+  "completion_enabled": true,
+  "knowledge_dir": ".project",
+  "task_mode": {
+    "enabled": false,
+    "specs_dir": ".project/specs/tasks",
+    "steering_file": ".project/steering.md"
+  }
+}

@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════════════════════════
+   RALPH WIGGUM FLOWCHART - STAR WARS COMMAND CENTER
+   3-Tier autonomous AI agent visualization
+═══════════════════════════════════════════════════════════════════ */
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% 0%, #0f0f23 0%, #050510 100%);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────────────────────────── */
+.header {
+  padding: 20px 32px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 232, 31, 0.15);
+  background: linear-gradient(180deg, rgba(255, 232, 31, 0.05) 0%, transparent 100%);
+}
+
+.header h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--sw-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(255, 232, 31, 0.4);
+}
+
+.header .tagline {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--sw-text-dim);
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   CANVAS
+───────────────────────────────────────────────────────────────── */
+.canvas {
+  flex: 1;
+  position: relative;
+}
+
+.react-flow {
+  background: transparent !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TIER HEADERS - Column labels
+───────────────────────────────────────────────────────────────── */
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(10, 10, 26, 0.8);
+  border: 1px solid var(--tier-color);
+  border-radius: 6px;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--tier-color) 30%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tier-header.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.tier-icon {
+  font-size: 1.2rem;
+}
+
+.tier-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tier-color);
+  letter-spacing: 0.15em;
+}
+
+.tier-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  color: var(--sw-text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   STEP NODES - Regular workflow steps
+───────────────────────────────────────────────────────────────── */
+.step-node {
+  min-width: 160px;
+  padding: 14px 18px;
+  background: rgba(10, 10, 26, 0.9);
+  border: 2px solid var(--node-color);
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.85);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.step-node::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 12px;
+  background: var(--node-color);
+  opacity: 0;
+  filter: blur(12px);
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+.step-node.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.step-node.active {
+  border-width: 3px;
+  box-shadow: 0 0 30px color-mix(in srgb, var(--node-color) 50%, transparent);
+}
+
+.step-node.active::before {
+  opacity: 0.3;
+}
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--node-color);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.step-desc {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: var(--sw-text-dim);
+}
+
+.step-handle {
+  width: 8px !important;
+  height: 8px !important;
+  background: var(--node-color) !important;
+  border: 2px solid var(--sw-space) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DECISION NODES - Diamond-shaped pass/fail gates
+───────────────────────────────────────────────────────────────── */
+.decision-node {
+  width: 120px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--node-color) 20%, rgba(10, 10, 26, 0.95));
+  border: 2px solid var(--node-color);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.85) rotate(0deg);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  box-shadow: inset 0 0 30px color-mix(in srgb, var(--node-color) 30%, transparent);
+}
+
+.decision-node::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--node-color);
+  opacity: 0;
+  filter: blur(15px);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+.decision-node.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.decision-node.active {
+  border-width: 3px;
+}
+
+.decision-node.active::after {
+  opacity: 0.4;
+}
+
+.decision-content {
+  text-align: center;
+  padding: 8px;
+}
+
+.decision-title {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--node-color);
+  letter-spacing: 0.1em;
+}
+
+.decision-handle {
+  width: 6px !important;
+  height: 6px !important;
+  background: var(--node-color) !important;
+  border: 1px solid var(--sw-space) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   CODE PANEL - Terminal-style code viewer
+───────────────────────────────────────────────────────────────── */
+.code-panel {
+  width: 320px;
+  min-height: 280px;
+  background: rgba(5, 5, 16, 0.95);
+  border: 1px solid rgba(255, 232, 31, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(255, 232, 31, 0.08);
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.5s ease;
+}
+
+.code-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 232, 31, 0.08);
+  border-bottom: 1px solid rgba(255, 232, 31, 0.15);
+}
+
+.code-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dot.red { background: var(--sw-red); }
+.dot.yellow { background: var(--sw-gold); }
+.dot.green { background: var(--sw-green); }
+
+.code-filename {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  color: var(--sw-gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.code-body {
+  margin: 0;
+  padding: 14px;
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--sw-text);
+}
+
+.code-body code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   CONTROLS FOOTER
+───────────────────────────────────────────────────────────────── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 32px;
+  background: linear-gradient(0deg, rgba(255, 232, 31, 0.05) 0%, transparent 100%);
+  border-top: 1px solid rgba(255, 232, 31, 0.15);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--sw-gold);
+  background: rgba(255, 232, 31, 0.08);
+  border: 1px solid rgba(255, 232, 31, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: rgba(255, 232, 31, 0.15);
+  border-color: var(--sw-gold);
+  box-shadow: 0 0 20px rgba(255, 232, 31, 0.2);
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: rgba(255, 232, 31, 0.15);
+  border-color: var(--sw-gold);
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: rgba(136, 136, 170, 0.3);
+  color: var(--sw-text-dim);
+}
+
+.btn.ghost:hover:not(:disabled) {
+  border-color: rgba(136, 136, 170, 0.5);
+  color: var(--sw-text);
+  box-shadow: none;
+}
+
+/* Progress indicator */
+.progress {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 16px;
+  background: rgba(10, 10, 26, 0.8);
+  border: 1px solid rgba(255, 232, 31, 0.2);
+  border-radius: 4px;
+}
+
+.progress .current {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sw-gold);
+}
+
+.progress .sep {
+  color: var(--sw-text-dim);
+  margin: 0 2px;
+}
+
+.progress .total {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--sw-text-dim);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   REACT FLOW OVERRIDES
+───────────────────────────────────────────────────────────────── */
+.react-flow__edge-text {
+  font-family: var(--font-display) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.1em !important;
+}
+
+.react-flow__controls {
+  bottom: 80px !important;
+  left: 16px !important;
+}
+
+.react-flow__controls-button {
+  background: rgba(10, 10, 26, 0.9) !important;
+  border: 1px solid rgba(255, 232, 31, 0.3) !important;
+  color: var(--sw-gold) !important;
+  border-radius: 4px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 232, 31, 0.1) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .code-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 0.65rem;
+  }
+}

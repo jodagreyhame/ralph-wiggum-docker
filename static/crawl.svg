@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="fadeTop" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#000" stop-opacity="1"/>
+      <stop offset="15%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="1"/>
+    </linearGradient>
+    <clipPath id="crawlClip">
+      <rect x="100" y="50" width="600" height="300"/>
+    </clipPath>
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes crawl {
+      0% { transform: translateY(400px) rotateX(25deg); }
+      100% { transform: translateY(-800px) rotateX(25deg); }
+    }
+
+    @keyframes starTwinkle {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.2; }
+    }
+
+    .crawl-container {
+      animation: crawl 35s linear infinite;
+      transform-origin: 50% 100%;
+    }
+
+    .crawl-text {
+      font-family: 'Franklin Gothic Medium', 'News Gothic', 'Arial Narrow', sans-serif;
+      font-weight: 600;
+      fill: #ffe81f;
+      text-anchor: middle;
+      letter-spacing: 0.02em;
+    }
+
+    .star-tiny {
+      fill: white;
+      animation: starTwinkle 3s ease-in-out infinite;
+    }
+
+    .star-tiny:nth-child(odd) { animation-delay: 1.5s; }
+  </style>
+
+  <!-- Deep space background -->
+  <rect width="100%" height="100%" fill="#000005"/>
+
+  <!-- Background stars -->
+  <g opacity="0.6">
+    <circle cx="50" cy="30" r="0.8" class="star-tiny"/>
+    <circle cx="120" cy="80" r="0.5" class="star-tiny"/>
+    <circle cx="200" cy="45" r="0.7" class="star-tiny"/>
+    <circle cx="280" cy="120" r="0.4" class="star-tiny"/>
+    <circle cx="350" cy="25" r="0.6" class="star-tiny"/>
+    <circle cx="420" cy="95" r="0.8" class="star-tiny"/>
+    <circle cx="500" cy="50" r="0.5" class="star-tiny"/>
+    <circle cx="580" cy="130" r="0.7" class="star-tiny"/>
+    <circle cx="650" cy="35" r="0.4" class="star-tiny"/>
+    <circle cx="720" cy="85" r="0.6" class="star-tiny"/>
+    <circle cx="780" cy="60" r="0.8" class="star-tiny"/>
+    <circle cx="80" cy="180" r="0.5" class="star-tiny"/>
+    <circle cx="160" cy="220" r="0.7" class="star-tiny"/>
+    <circle cx="240" cy="280" r="0.4" class="star-tiny"/>
+    <circle cx="320" cy="350" r="0.6" class="star-tiny"/>
+    <circle cx="400" cy="300" r="0.8" class="star-tiny"/>
+    <circle cx="480" cy="380" r="0.5" class="star-tiny"/>
+    <circle cx="560" cy="250" r="0.7" class="star-tiny"/>
+    <circle cx="640" cy="320" r="0.4" class="star-tiny"/>
+    <circle cx="720" cy="370" r="0.6" class="star-tiny"/>
+    <circle cx="760" cy="200" r="0.8" class="star-tiny"/>
+  </g>
+
+  <!-- Crawl perspective container -->
+  <g clip-path="url(#crawlClip)" style="perspective: 400px; transform-style: preserve-3d;">
+    <g class="crawl-container" filter="url(#textGlow)">
+      <!-- Episode header -->
+      <text x="400" y="0" class="crawl-text" font-size="16" letter-spacing="0.3em">Episode IV</text>
+      <text x="400" y="50" class="crawl-text" font-size="32" font-weight="900">A NEW ITERATION</text>
+
+      <!-- Main crawl text -->
+      <text x="400" y="120" class="crawl-text" font-size="18">It is a period of continuous</text>
+      <text x="400" y="150" class="crawl-text" font-size="18">integration. Rebel developers,</text>
+      <text x="400" y="180" class="crawl-text" font-size="18">working from their home offices,</text>
+      <text x="400" y="210" class="crawl-text" font-size="18">have achieved their first victory</text>
+      <text x="400" y="240" class="crawl-text" font-size="18">against the evil Legacy Spaghetti Code.</text>
+
+      <text x="400" y="300" class="crawl-text" font-size="18">During the battle, Rebel spies</text>
+      <text x="400" y="330" class="crawl-text" font-size="18">managed to steal secret plans to</text>
+      <text x="400" y="360" class="crawl-text" font-size="18">the Empire's ultimate weapon, the</text>
+      <text x="400" y="390" class="crawl-text" font-size="18">RALPH WIGGUM DOCKER LOOP, an</text>
+      <text x="400" y="420" class="crawl-text" font-size="18">iterative AI system with enough</text>
+      <text x="400" y="450" class="crawl-text" font-size="18">power to complete an entire codebase.</text>
+
+      <text x="400" y="510" class="crawl-text" font-size="18">Pursued by the Empire's sinister</text>
+      <text x="400" y="540" class="crawl-text" font-size="18">production bugs, Padawan Ralph</text>
+      <text x="400" y="570" class="crawl-text" font-size="18">races home aboard his Docker</text>
+      <text x="400" y="600" class="crawl-text" font-size="18">container, custodian of the</text>
+      <text x="400" y="630" class="crawl-text" font-size="18">stolen PROMPT.md that can save</text>
+      <text x="400" y="660" class="crawl-text" font-size="18">developers everywhere and restore</text>
+      <text x="400" y="690" class="crawl-text" font-size="18">balance to the codebase....</text>
+
+      <!-- Tagline -->
+      <text x="400" y="780" class="crawl-text" font-size="14" fill="#a8d4ff" font-style="italic">
+        "Me fail Jedi? That's unpossible!"
+      </text>
+    </g>
+  </g>
+
+  <!-- Fade overlay -->
+  <rect width="100%" height="100%" fill="url(#fadeTop)" pointer-events="none"/>
+</svg>

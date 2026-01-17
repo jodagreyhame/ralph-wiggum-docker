@@ -1,0 +1,38 @@
+{
+    "name": "ralph-terminal",
+    "version": "1.0.0",
+    "description": "TUI dashboard and project configurator for ralph-wiggum-docker-loop",
+    "type": "module",
+    "main": "dist/cli/index.js",
+    "bin": {
+        "ralph": "./dist/cli/index.js",
+        "ralph-tui": "./dist/cli/index.js"
+    },
+    "scripts": {
+        "dev": "bun run src/cli/index.ts",
+        "build": "bun build src/cli/index.ts --outdir dist --target node",
+        "tui": "bun run src/cli/index.ts tui",
+        "lint": "tsc --noEmit",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "commander": "^12.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.10.0",
+        "typescript": "^5.7.2"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "keywords": [
+        "tui",
+        "terminal",
+        "dashboard",
+        "ralph",
+        "cli",
+        "configurator"
+    ],
+    "license": "MIT"
+}

@@ -1,0 +1,119 @@
+:root {
+  /* Star Wars Theme Colors */
+  --sw-space: #0a0a1a;
+  --sw-space-deep: #050510;
+  --sw-gold: #FFE81F;
+  --sw-gold-dim: #c4b200;
+  --sw-blue: #00D4FF;
+  --sw-blue-dim: #0099bb;
+  --sw-red: #FF6B6B;
+  --sw-red-bright: #ff4444;
+  --sw-green: #00FF41;
+  --sw-purple: #9d4edd;
+  --sw-text: #e8e8e8;
+  --sw-text-dim: #8888aa;
+
+  /* Fonts */
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--sw-space);
+  color: var(--sw-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scanline overlay effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Star field background */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 232, 31, 0.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(0, 212, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(2px 2px at 200px 50px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 250px 150px, rgba(255, 232, 31, 0.4), transparent),
+    radial-gradient(2px 2px at 300px 90px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 350px 180px, rgba(0, 212, 255, 0.4), transparent),
+    radial-gradient(2px 2px at 400px 60px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 450px 200px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(2px 2px at 500px 100px, rgba(255, 232, 31, 0.5), transparent),
+    radial-gradient(1px 1px at 550px 30px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 600px 160px, rgba(0, 212, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 650px 220px, rgba(255, 255, 255, 0.5), transparent);
+  background-size: 700px 250px;
+  animation: twinkle 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sw-space-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sw-gold-dim);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sw-gold);
+}
+
+/* Selection */
+::selection {
+  background: var(--sw-gold);
+  color: var(--sw-space);
+}

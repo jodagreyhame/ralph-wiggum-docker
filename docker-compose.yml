@@ -1,0 +1,100 @@
+# Ralph Wiggum Docker Loop - Single Service Pattern
+#
+# One image, many projects via environment variables.
+# Each run mounts a different project folder to /project.
+#
+# Usage:
+#   # Build once
+#   docker compose build
+#
+#   # Run different projects (each gets isolated /project)
+#   RALPH_PROJECT_DIR=./.projects/my-project docker compose run --rm ralph
+#
+#   # With Anthropic OAuth (recommended)
+#   RALPH_PROJECT_DIR=./.projects/my-project RALPH_AUTH_MODE=anthropic-oauth docker compose run --rm ralph
+#
+#   # Run multiple in parallel (separate terminals)
+#   RALPH_PROJECT_DIR=./.projects/project-a docker compose run --rm ralph &
+#   RALPH_PROJECT_DIR=./.projects/project-b docker compose run --rm ralph &
+
+services:
+  ralph:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    image: ralph-loop:latest
+
+    # Container name includes project for parallel runs
+    container_name: ralph-${RALPH_PROJECT_NAME:-default}
+
+    environment:
+      # Project settings (set by launcher or command line)
+      - RALPH_PROJECT_NAME=${RALPH_PROJECT_NAME:-my-project}
+      - RALPH_MAX_ITERATIONS=${RALPH_MAX_ITERATIONS:-100}
+      - RALPH_COMPLETION_PROMISE=${RALPH_COMPLETION_PROMISE:-TASK COMPLETE}
+
+      # Auth mode: anthropic-oauth, anthropic-api, gemini-oauth, gemini-api,
+      #            openai-oauth, openai-api, opencode-oauth, opencode-api, glm
+      - RALPH_AUTH_MODE=${RALPH_AUTH_MODE:-glm}
+
+      # GLM backend (z.ai)
+      - GLM_AUTH_TOKEN=${GLM_AUTH_TOKEN:-}
+      - GLM_BASE_URL=${GLM_BASE_URL:-https://api.z.ai/api/anthropic}
+      - GLM_MODEL=${GLM_MODEL:-glm-4.7}
+      - ANTHROPIC_AUTH_TOKEN=${GLM_AUTH_TOKEN:-}
+      - ANTHROPIC_BASE_URL=${GLM_BASE_URL:-https://api.z.ai/api/anthropic}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${GLM_MODEL:-glm-4.7}
+      - ANTHROPIC_DEFAULT_OPUS_MODEL=${GLM_MODEL:-glm-4.7}
+      - ANTHROPIC_DEFAULT_HAIKU_MODEL=${GLM_MODEL:-glm-4.7}
+
+      # Anthropic API (direct)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+      # Gemini
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+
+      # Codex (OpenAI)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+
+      # OpenCode (Antigravity models via plugin)
+      - OPENCODE_MODEL=${OPENCODE_MODEL:-google/antigravity-claude-opus-4-5-thinking}
+
+      # Token limits
+      - CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS=100000
+      - MAX_MCP_OUTPUT_TOKENS=100000
+
+      # Disable telemetry
+      - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+      - DO_NOT_TRACK=1
+
+      # Output formatting
+      - RALPH_READABLE_OUTPUT=${RALPH_READABLE_OUTPUT:-true}
+      - RALPH_SHOW_THINKING=${RALPH_SHOW_THINKING:-true}
+
+      # Model override (enables thinking for opus/sonnet 4.5+)
+      - RALPH_MODEL=${RALPH_MODEL:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
+
+      # Terminal colors (FORCE_COLOR needed for chalk in pipelines)
+      - TERM=xterm-256color
+      - COLORTERM=truecolor
+      - FORCE_COLOR=1
+
+    volumes:
+      # PROJECT (isolated per run via RALPH_PROJECT_DIR)
+      - ${RALPH_PROJECT_DIR:-./.projects/_default}:/project
+
+      # Template (read-only self-reference)
+      - ./template:/template:ro
+      - ./docker:/docker-src:ro
+
+      # Auth passthrough - mount to staging dir, entrypoint copies only credentials
+      - ${CLAUDE_CONFIG_PATH:-~/.claude}:/mnt/claude-host:ro
+      - ${GEMINI_CONFIG_PATH:-~/.gemini}:/mnt/gemini-host:ro
+      - ${CODEX_CONFIG_PATH:-~/.codex}:/mnt/codex-host:ro
+      - ${OPENCODE_AUTH_PATH:-~/.local/share/opencode}:/mnt/opencode-host:ro
+      - ${OPENCODE_CONFIG_PATH:-~/.config/opencode}:/mnt/opencode-config:ro
+
+    stdin_open: true
+    tty: true
+    working_dir: /project

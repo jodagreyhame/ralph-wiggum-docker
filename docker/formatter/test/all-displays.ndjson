@@ -1,0 +1,52 @@
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "=== TEXT OUTPUT ===\nThis is plain assistant text that flows naturally."}]}}
+{"type": "content_block_delta", "delta": {"type": "text_delta", "text": "Streaming text delta... "}}
+{"type": "content_block_delta", "delta": {"type": "text_delta", "text": "more text streaming.\n"}}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "\n=== TOOL CALLS (→) ==="}]}}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Bash", "input": {"command": "ls -la /project"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Bash", "input": {"command": "echo 'This is a very long command that should be truncated at some point to keep the output readable'"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Glob", "input": {"pattern": "src/**/*.ts"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Grep", "input": {"pattern": "export.*function", "path": "/project/src"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "WebFetch", "input": {"url": "https://api.example.com/data"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "WebSearch", "input": {"query": "typescript best practices 2024"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Task", "input": {"prompt": "Find all exported functions in the codebase", "description": "Search exports"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "TodoWrite", "input": {"todos": [{"content": "Task 1"}, {"content": "Task 2"}]}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "AskUserQuestion", "input": {"question": "Which approach do you prefer?"}}}
+{"type": "content_block_stop"}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "\n=== FILE OPERATIONS (●) ==="}]}}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Read", "input": {"file_path": "/project/src/config.ts"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Read", "input": {"filePath": "/project/package.json"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Write", "input": {"file_path": "/project/src/new-file.ts", "content": "export const config = {\n  debug: true,\n  timeout: 5000\n};"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Write", "input": {"file_path": "/project/src/large-file.ts", "content": "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12\nline13\nline14\nline15\nline16\nline17\nline18\nline19\nline20"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Edit", "input": {"file_path": "/project/src/index.ts", "old_string": "const value = 1;", "new_string": "const value = 2;"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Edit", "input": {"file_path": "/project/src/config.ts", "old_string": "export const config = {\n  debug: false,\n  timeout: 5000\n};", "new_string": "export const config = {\n  debug: true,\n  timeout: 10000,\n  retries: 3,\n  baseUrl: 'https://api.example.com'\n};"}}}
+{"type": "content_block_stop"}
+{"type": "content_block_start", "content_block": {"type": "tool_use", "name": "Edit", "input": {"file_path": "/project/src/large-edit.ts", "old_string": "line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8", "new_string": "new1\nnew2\nnew3\nnew4\nnew5\nnew6\nnew7\nnew8\nnew9\nnew10"}}}
+{"type": "content_block_stop"}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "\n=== TOOL RESULTS (←) ==="}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "1", "is_error": false, "content": "Short success result"}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "2", "is_error": false, "content": "Line 1\nLine 2\nLine 3\nLine 4\nLine 5"}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "3", "is_error": true, "content": "Error: Command failed with exit code 1"}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "4", "is_error": true, "content": "Error: Cannot find module 'typescript'\n    at Function.Module._resolveFilename (node:internal/modules/cjs/loader:1077:15)\n    at Function.Module._load (node:internal/modules/cjs/loader:922:27)\n    at Module.require (node:internal/modules/cjs/loader:1143:19)\n    at require (node:internal/modules/cjs/helpers:121:18)\n    at Object.<anonymous> (/project/node_modules/ts-node/src/index.ts:23:1)\n    at Module._compile (node:internal/modules/cjs/loader:1256:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1310:10)\n    at Object.require.extensions.<computed> [as .ts] (/project/node_modules/ts-node/src/index.ts:1608:12)\n    at Module.load (node:internal/modules/cjs/loader:1119:32)\n    at Function.Module._load (node:internal/modules/cjs/loader:960:12)"}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "5", "is_error": true, "content": [{"type": "text", "text": "Permission denied: /etc/passwd"}]}]}}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "\n=== THINKING (◆) - requires RALPH_SHOW_THINKING=true ==="}]}}
+{"type": "content_block_start", "content_block": {"type": "thinking"}}
+{"type": "content_block_delta", "delta": {"type": "thinking_delta", "thinking": "Let me think about this..."}}
+{"type": "content_block_delta", "delta": {"type": "thinking_delta", "thinking": "\nAnalyzing the problem step by step."}}
+{"type": "content_block_stop"}
+{"type": "assistant", "message": {"content": [{"type": "thinking", "thinking": "This is a complete thinking block.\nIt has multiple lines.\nI'm considering the options.\nLet me analyze further.\nThis should be truncated.\nMore thinking here.\nAnd more.\nEven more thoughts."}]}}
+{"type": "assistant", "message": {"content": [{"type": "text", "text": "\n=== COMPLETION STATS (---) ==="}]}}
+{"type": "result", "subtype": "success", "num_turns": 5, "duration_ms": 12345, "total_cost_usd": 0.023456, "usage": {"input_tokens": 15420, "output_tokens": 2341}}
+{"type": "result", "subtype": "error", "num_turns": 3, "total_cost_usd": 0.005000, "usage": {"input_tokens": 5000, "output_tokens": 500}}

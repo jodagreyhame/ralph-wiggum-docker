@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
+  <defs>
+    <radialGradient id="space" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0f0f23"/>
+      <stop offset="50%" stop-color="#0a0a1a"/>
+      <stop offset="100%" stop-color="#000005"/>
+    </radialGradient>
+
+    <!-- Lightsaber blade gradients - Jedi (blue) -->
+    <linearGradient id="blade-jedi" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#a8d4ff"/>
+      <stop offset="70%" stop-color="#4a9eff"/>
+      <stop offset="100%" stop-color="#2080ff"/>
+    </linearGradient>
+
+    <!-- Lightsaber blade gradients - Sith (red) -->
+    <linearGradient id="blade-sith" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#ff6b6b"/>
+      <stop offset="70%" stop-color="#ff2020"/>
+      <stop offset="100%" stop-color="#cc0000"/>
+    </linearGradient>
+
+    <!-- Glow filters -->
+    <filter id="glow-jedi" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#4a9eff" flood-opacity="0.8"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glow-sith" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#ff2020" flood-opacity="0.8"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    .star { fill: #ffffff; }
+    .star-bright { fill: #fffef0; }
+    .star-blue { fill: #a8d4ff; }
+    .star-gold { fill: #ffe81f; }
+
+    .twinkle1 { animation: twinkle 3s ease-in-out infinite; }
+    .twinkle2 { animation: twinkle 2.5s ease-in-out infinite 0.5s; }
+    .twinkle3 { animation: twinkle 4s ease-in-out infinite 1s; }
+    .twinkle4 { animation: twinkle 2s ease-in-out infinite 1.5s; }
+    .twinkle5 { animation: twinkle 3.5s ease-in-out infinite 0.3s; }
+
+    .pulse { animation: pulse 4s ease-in-out infinite; }
+
+    .saber-hum { animation: saber-hum 0.1s ease-in-out infinite; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes saber-hum {
+      0%, 100% { opacity: 0.95; }
+      50% { opacity: 1; }
+    }
+
+    .title-text {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .subtitle-text {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+    }
+
+    .tagline {
+      font-family: Georgia, serif;
+      font-style: italic;
+      letter-spacing: 0.1em;
+    }
+
+    /* Theme-aware lightsaber colors */
+    .saber-blade { fill: url(#blade-jedi); filter: url(#glow-jedi); }
+    .saber-glow { fill: #4a9eff; opacity: 0.3; }
+
+    @media (prefers-color-scheme: dark) {
+      .saber-blade { fill: url(#blade-sith); filter: url(#glow-sith); }
+      .saber-glow { fill: #ff2020; opacity: 0.3; }
+    }
+  </style>
+
+  <!-- Deep space background -->
+  <rect width="100%" height="100%" fill="url(#space)"/>
+
+  <!-- Static star layer -->
+  <g opacity="0.6">
+    <circle cx="45" cy="23" r="0.5" class="star"/>
+    <circle cx="120" cy="67" r="0.4" class="star"/>
+    <circle cx="189" cy="34" r="0.6" class="star"/>
+    <circle cx="267" cy="89" r="0.3" class="star"/>
+    <circle cx="334" cy="45" r="0.5" class="star"/>
+    <circle cx="412" cy="112" r="0.4" class="star"/>
+    <circle cx="478" cy="28" r="0.5" class="star"/>
+    <circle cx="556" cy="78" r="0.3" class="star"/>
+    <circle cx="623" cy="134" r="0.6" class="star"/>
+    <circle cx="701" cy="56" r="0.4" class="star"/>
+    <circle cx="778" cy="98" r="0.5" class="star"/>
+    <circle cx="845" cy="23" r="0.3" class="star"/>
+    <circle cx="923" cy="145" r="0.5" class="star"/>
+    <circle cx="989" cy="67" r="0.4" class="star"/>
+    <circle cx="1067" cy="112" r="0.6" class="star"/>
+    <circle cx="1134" cy="34" r="0.3" class="star"/>
+    <circle cx="1189" cy="89" r="0.5" class="star"/>
+    <circle cx="78" cy="178" r="0.6" class="star"/>
+    <circle cx="156" cy="234" r="0.5" class="star"/>
+    <circle cx="223" cy="189" r="0.7" class="star"/>
+    <circle cx="301" cy="256" r="0.4" class="star"/>
+    <circle cx="378" cy="201" r="0.6" class="star"/>
+    <circle cx="445" cy="267" r="0.5" class="star"/>
+    <circle cx="523" cy="212" r="0.4" class="star"/>
+    <circle cx="589" cy="245" r="0.7" class="star"/>
+    <circle cx="667" cy="178" r="0.5" class="star"/>
+    <circle cx="734" cy="223" r="0.6" class="star"/>
+    <circle cx="812" cy="267" r="0.4" class="star"/>
+    <circle cx="878" cy="189" r="0.5" class="star"/>
+    <circle cx="956" cy="234" r="0.7" class="star"/>
+    <circle cx="1023" cy="201" r="0.4" class="star"/>
+    <circle cx="1101" cy="256" r="0.6" class="star"/>
+    <circle cx="1167" cy="212" r="0.5" class="star"/>
+  </g>
+
+  <!-- Twinkling bright stars -->
+  <g>
+    <circle cx="95" cy="45" r="1.5" class="star-bright twinkle1"/>
+    <circle cx="234" cy="123" r="2" class="star-gold twinkle2"/>
+    <circle cx="367" cy="67" r="1.3" class="star-blue twinkle3"/>
+    <circle cx="512" cy="189" r="1.7" class="star-bright twinkle4"/>
+    <circle cx="645" cy="34" r="1.4" class="star-gold twinkle5"/>
+    <circle cx="789" cy="156" r="1.8" class="star-bright twinkle1"/>
+    <circle cx="923" cy="89" r="1.5" class="star-blue twinkle2"/>
+    <circle cx="1056" cy="178" r="1.3" class="star-bright twinkle3"/>
+    <circle cx="1145" cy="67" r="2" class="star-gold twinkle4"/>
+    <circle cx="178" cy="245" r="1.4" class="star-bright twinkle5"/>
+    <circle cx="423" cy="278" r="1.7" class="star-blue twinkle1"/>
+    <circle cx="678" cy="234" r="1.3" class="star-gold twinkle2"/>
+    <circle cx="867" cy="267" r="1.5" class="star-bright twinkle3"/>
+    <circle cx="1012" cy="245" r="1.8" class="star-blue twinkle4"/>
+  </g>
+
+  <!-- Title group -->
+  <g>
+    <text x="600" y="100" text-anchor="middle" class="title-text" font-size="14" fill="#ffe81f" opacity="0.9">
+      A LONG TIME AGO IN A DOCKER CONTAINER FAR, FAR AWAY....
+    </text>
+  </g>
+
+  <!-- Main title -->
+  <g>
+    <text x="600" y="160" text-anchor="middle" class="title-text" font-size="48" fill="#ffe81f">
+      RALPH WIGGUM
+    </text>
+    <text x="600" y="205" text-anchor="middle" class="subtitle-text" font-size="28" fill="#ffd90f">
+      DOCKER LOOP
+    </text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="600" y="250" text-anchor="middle" class="tagline" font-size="18" fill="#a8d4ff" opacity="0.9">
+    "May Ralph Wiggum Be With You"
+  </text>
+
+  <!-- Decorative lines -->
+  <line x1="200" y1="270" x2="500" y2="270" stroke="#ffe81f" stroke-width="1" opacity="0.3"/>
+  <line x1="700" y1="270" x2="1000" y2="270" stroke="#ffe81f" stroke-width="1" opacity="0.3"/>
+  <circle cx="600" cy="270" r="3" fill="#ffe81f" opacity="0.5" class="pulse"/>
+
+  <!-- Left Lightsaber (vertical) -->
+  <g transform="translate(60, 30)">
+    <!-- Outer glow (straight rectangle) -->
+    <rect x="-10" y="10" width="20" height="210" rx="3" class="saber-glow"/>
+    <!-- Blade (straight) -->
+    <rect x="-4" y="15" width="8" height="200" rx="2" class="saber-blade saber-hum"/>
+    <!-- Blade core (white center) -->
+    <rect x="-2" y="17" width="4" height="196" rx="1" fill="#ffffff" opacity="0.7"/>
+    <!-- Hilt -->
+    <rect x="-6" y="215" width="12" height="50" rx="2" fill="#3a3a3a"/>
+    <rect x="-8" y="220" width="16" height="8" rx="1" fill="#5a5a5a"/>
+    <rect x="-8" y="235" width="16" height="8" rx="1" fill="#5a5a5a"/>
+    <rect x="-5" y="255" width="10" height="8" rx="1" fill="#2a2a2a"/>
+    <!-- Hilt details -->
+    <circle cx="0" cy="230" r="2" fill="#ff0000" opacity="0.8"/>
+    <rect x="-7" y="250" width="14" height="2" fill="#1a1a1a"/>
+  </g>
+
+  <!-- Right Lightsaber (vertical) -->
+  <g transform="translate(1140, 30)">
+    <!-- Outer glow (straight rectangle) -->
+    <rect x="-10" y="10" width="20" height="210" rx="3" class="saber-glow"/>
+    <!-- Blade (straight) -->
+    <rect x="-4" y="15" width="8" height="200" rx="2" class="saber-blade saber-hum"/>
+    <!-- Blade core (white center) -->
+    <rect x="-2" y="17" width="4" height="196" rx="1" fill="#ffffff" opacity="0.7"/>
+    <!-- Hilt -->
+    <rect x="-6" y="215" width="12" height="50" rx="2" fill="#3a3a3a"/>
+    <rect x="-8" y="220" width="16" height="8" rx="1" fill="#5a5a5a"/>
+    <rect x="-8" y="235" width="16" height="8" rx="1" fill="#5a5a5a"/>
+    <rect x="-5" y="255" width="10" height="8" rx="1" fill="#2a2a2a"/>
+    <!-- Hilt details -->
+    <circle cx="0" cy="230" r="2" fill="#ff0000" opacity="0.8"/>
+    <rect x="-7" y="250" width="14" height="2" fill="#1a1a1a"/>
+  </g>
+</svg>
