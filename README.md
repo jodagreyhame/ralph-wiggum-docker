@@ -105,7 +105,7 @@ RALPH_PROJECT_DIR=./.projects/my-project docker compose run --rm ralph
 ## System Architecture
 
 <div align="center">
-<a href="https://jodagreyhame.github.io/ralph-wiggum-docker/" title="Click for interactive flowchart">
+<a href="https://jodagreyhame.github.io/ralph-wiggum-docker/" target="_blank" title="Click for interactive flowchart">
 <img src="static/flowchart.jpg" alt="How Ralph Wiggum Works - 3-Tier Autonomous AI Agent Loop" width="900" />
 </a>
 
