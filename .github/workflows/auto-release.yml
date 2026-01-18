@@ -15,10 +15,10 @@ permissions:
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
-    # Don't run on PRs from forks (they can't push back) or when PR is closed
+    # Only run when PR is opened/reopened, not on every push (synchronize)
     if: |
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.action != 'closed'
+      (github.event.action == 'opened' || github.event.action == 'reopened')
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
       bump_type: ${{ steps.check.outputs.bump_type }}
