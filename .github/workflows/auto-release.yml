@@ -23,8 +23,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    # Only run when PR is merged (not just closed)
-    if: github.event.pull_request.merged == true
+    # Only run when PR is merged (not just closed) and NOT a release PR
+    if: |
+      github.event.pull_request.merged == true &&
+      !startsWith(github.event.pull_request.head.ref, 'release/v')
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v6
