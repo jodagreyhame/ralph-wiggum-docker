@@ -1,0 +1,15 @@
+{
+  "project": "my-project",
+  "total_tasks": 1,
+  "completed_tasks": 0,
+  "current_phase": "phase-00-bootstrap",
+  "current_task": "0.1",
+  "phases": [
+    {
+      "id": "phase-00-bootstrap",
+      "name": "Bootstrap",
+      "tasks": 1,
+      "completed": 0
+    }
+  ]
+}

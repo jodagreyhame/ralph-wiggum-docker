@@ -5,24 +5,6 @@ All notable changes to Ralph Wiggum Docker will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Removed
-- **BREAKING:** Removed legacy `ralph.ps1` launcher from root directory
-  - This script was undocumented, incomplete (missing config.json support), and superseded by better alternatives
-  - **Migration:** Use `ralph run <project>` or `.\scripts\run.ps1 -Project <project>` instead
-
-### Changed
-- Updated documentation to clarify launch methods with recommended approaches
-- Added header comments to all launcher scripts explaining their purpose and usage
-- Updated Quick Start guide to use `ralph run` command (recommended method)
-
-### Documentation
-- Clarified launch method hierarchy in CLAUDE.md (CLI → Scripts → Direct Docker)
-- Added purpose and usage notes to scripts/run.sh and scripts/run.ps1 headers
-- Added purpose and usage notes to skill launcher scripts
-- Updated README.md to recommend `ralph run` command
-
 ## [0.1.11] - 2026-01-18
 
 - fix(ci): Add 'closed' event to auto-release workflow

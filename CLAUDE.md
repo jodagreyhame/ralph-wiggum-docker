@@ -388,38 +388,44 @@ Tests all CLI commands: new, list, show, delete, validate, and display modes.
 
 ## Release Workflow
 
-This project uses automated semantic versioning with conventional commits.
+Automated semantic versioning with conventional commits. **No manual version updates required.**
 
-### How It Works
+### Process
 
-1. **Create a PR** with conventional commit messages (`feat:`, `fix:`, `docs:`, etc.)
-2. **Auto-release workflow** runs and:
-   - Detects release-worthy commits
-   - Bumps version (defaults to **patch**)
-   - Updates `CHANGELOG.md` (summary) and `docs/CHANGELOG-DETAILED.md` (full)
-   - Commits changes back to the PR branch
-3. **Merge the PR** - tag and GitHub release are created automatically
+1. **Create PR** with conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`, `perf:`)
+2. **Merge to main** triggers auto-release workflow
+3. **Automatic actions:**
+   - Version bumped in `package.json`
+   - Changelogs updated
+   - Git tag created (e.g., `v0.1.12`)
+   - GitHub Release published
 
-### Version Bumps
+### Version Control
 
-| Bump | When | How to Trigger |
-|------|------|----------------|
-| **Patch** (0.0.X) | Default for any fix/feat/docs | Automatic |
-| **Minor** (0.X.0) | New features, breaking changes to minor APIs | Add `release:minor` label to PR |
-| **Major** (X.0.0) | Breaking changes, major rewrites | Add `release:major` label to PR |
+| Bump | Trigger |
+|------|---------|
+| **Patch** (0.0.X) | Automatic (default) |
+| **Minor** (0.X.0) | Add `release:minor` label to PR |
+| **Major** (X.0.0) | Add `release:major` label to PR |
 
-### Important
+### Non-Release Commits
 
-- **Always confirm with the user** before adding `release:minor` or `release:major` labels
-- Patches are automatic - no confirmation needed
-- The workflow will NOT run for `chore:`, `ci:`, `test:`, or `build:` commits only
+These commit types do **NOT** trigger a release:
+- `chore:`, `ci:`, `test:`, `build:`, `style:`
 
 ### Changelogs
 
-| File | Purpose |
+| File | Content |
 |------|---------|
 | `CHANGELOG.md` | Summary (PR title only) |
-| `docs/CHANGELOG-DETAILED.md` | Full categorized changes |
+| `docs/CHANGELOG-DETAILED.md` | Full categorized commit list |
+
+### What You Don't Need to Do
+
+- Don't edit `package.json` version manually
+- Don't update changelog files manually
+- Don't create git tags manually
+- **Always confirm with the user** before adding `release:minor` or `release:major` labels
 
 ## Usage
 

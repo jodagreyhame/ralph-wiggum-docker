@@ -1,0 +1,32 @@
+{
+  "phase": 0,
+  "name": "Bootstrap",
+  "description": "Generate task specifications from project goal",
+  "tasks": [
+    {
+      "id": "0.1",
+      "name": "Generate Task Specifications",
+      "description": "Read GOAL.md and create a complete set of task specification files that break down the project into atomic, actionable tasks. Analyze the goal, identify logical phases, and create detailed tasks with dependencies. You decide what phases and tasks are needed based on the goal.",
+      "status": "pending",
+      "provider": "glm",
+      "complexity": "M",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "Read and fully understand GOAL.md",
+        "Identify logical phases based on the project requirements",
+        "Create phase-XX-name.json files for each phase",
+        "Each task is atomic (completable in one iteration)",
+        "Each task has clear acceptance criteria",
+        "Dependencies form a valid DAG (no cycles)",
+        "Task IDs follow format X.Y (phase.task)",
+        "Update summary.json with all phases and task counts",
+        "Reference schema.json for the required JSON format"
+      ],
+      "files_to_create": [
+        ".project/specs/tasks/phase-*.json (as needed)",
+        ".project/specs/tasks/summary.json"
+      ],
+      "files_to_modify": []
+    }
+  ]
+}
