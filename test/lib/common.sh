@@ -123,11 +123,11 @@ test_image_build() {
 }
 
 test_template_exists() {
-    if [ -d "template" ] && [ -f "template/BUILDER_PROMPT.md" ]; then
+    if [ -d "template" ] && [ -f "template/.project/prompts/BUILDER.md" ]; then
         pass "Template directory exists"
         return 0
     else
-        fail "Template missing" "Ensure template/ directory with BUILDER_PROMPT.md exists"
+        fail "Template missing" "Ensure template/ directory with .project/prompts/BUILDER.md exists"
         return 1
     fi
 }

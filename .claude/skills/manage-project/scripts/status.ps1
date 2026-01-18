@@ -9,7 +9,7 @@ param(
 function Show-ProjectStatus {
     param([string]$proj)
 
-    if ((Test-Path $proj) -and (Test-Path "$proj\BUILDER_PROMPT.md")) {
+    if ((Test-Path $proj) -and (Test-Path "$proj\config.json")) {
         Write-Host "=== $proj ===" -ForegroundColor Cyan
 
         # Check state
@@ -40,7 +40,7 @@ if ($Project) {
 } else {
     # Show all projects
     Get-ChildItem -Directory | ForEach-Object {
-        if (Test-Path "$($_.Name)\BUILDER_PROMPT.md") {
+        if (Test-Path "$($_.Name)\config.json") {
             Show-ProjectStatus $_.Name
         }
     }

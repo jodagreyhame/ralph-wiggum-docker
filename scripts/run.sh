@@ -96,7 +96,7 @@ echo ""
 export RALPH_AUTH_MODE="$AUTH_MODE"
 export RALPH_MAX_ITERATIONS="$MAX_ITERATIONS"
 export RALPH_PROJECT_NAME="$PROJECT_NAME"
-export RALPH_PROMPT_FILE="BUILDER_PROMPT.md"
+export RALPH_PROMPT_FILE=".project/prompts/BUILDER.md"
 export RALPH_PROJECT_DIR="$PROJECT_DIR"
 
 # Set API keys based on auth mode (any mode ending in -api)

@@ -77,7 +77,7 @@ try {
     $env:RALPH_AUTH_MODE = $AuthMode
     $env:RALPH_MAX_ITERATIONS = $MaxIterations
     $env:RALPH_PROJECT_NAME = $Project
-    $env:RALPH_PROMPT_FILE = "BUILDER_PROMPT.md"
+    $env:RALPH_PROMPT_FILE = ".project/prompts/BUILDER.md"
     $env:RALPH_PROJECT_DIR = $ProjectDir
 
     # Set API keys based on auth mode (any mode ending in -api)

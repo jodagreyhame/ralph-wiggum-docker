@@ -7,7 +7,7 @@ description: |
   - SEARCH logs ("find in logs", "search output", "grep logs")
   - COMPARE runs ("compare iterations", "diff runs")
 
-  For project management (start/stop/create), use orchestrator instead.
+  For project management (start/stop/create), use manage-project instead.
 ---
 
 # Ralph Loop Logs Viewer
@@ -135,13 +135,13 @@ Or after completion:
 }
 ```
 
-## Integration with Orchestrator
+## Integration with Project Manager
 
-Use with orchestrator commands:
+Use with manage-project commands:
 
 ```bash
 # Start project in background
-.claude/skills/orchestrator/scripts/run.sh my-project -b
+.claude/skills/manage-project/scripts/run.sh my-project
 
 # Watch live output
 .claude/skills/logs-viewer/scripts/watch.sh my-project

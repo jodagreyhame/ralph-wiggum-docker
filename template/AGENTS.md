@@ -42,7 +42,7 @@
 ├── logs/                    # Iteration logs
 │   └── iteration_XXX/
 ├── src/                     # Source code
-└── tests/                   # Tests
+└── test/                    # Tests
 ```
 
 ## Git Workflow

@@ -53,7 +53,7 @@ bash -c 'source test/cli/test-cli.sh'
 | Docker available | Docker daemon is running |
 | Docker Compose | Compose v2 is available |
 | Image build | `ralph-loop:latest` builds successfully |
-| Template exists | `template/BUILDER_PROMPT.md` is present |
+| Template exists | `template/.project/prompts/BUILDER.md` is present |
 | anthropic-oauth | Host `~/.claude` OAuth credentials (recommended) |
 | anthropic-api | Direct API with `ANTHROPIC_API_KEY` |
 | gemini-oauth | Host `~/.gemini` OAuth credentials |

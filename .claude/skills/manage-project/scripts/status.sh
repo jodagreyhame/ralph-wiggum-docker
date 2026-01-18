@@ -6,7 +6,7 @@ PROJECT=$1
 
 show_project_status() {
     local proj=$1
-    if [ -d "$proj" ] && [ -f "$proj/BUILDER_PROMPT.md" ]; then
+    if [ -d "$proj" ] && [ -f "$proj/config.json" ]; then
         echo "=== $proj ==="
 
         # Check state
@@ -32,7 +32,7 @@ if [ -n "$PROJECT" ]; then
 else
     # Show all projects
     for dir in */; do
-        if [ -f "${dir}BUILDER_PROMPT.md" ]; then
+        if [ -f "${dir}config.json" ]; then
             show_project_status "${dir%/}"
         fi
     done

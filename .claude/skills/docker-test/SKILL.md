@@ -6,7 +6,7 @@ description: |
   - VERIFY auth modes ("test auth", "check auth modes", "verify glm/anthropic/gemini")
   - DIAGNOSE issues ("docker not working", "container problems", "build failing")
 
-  NOT for creating or running projects - use orchestrator for that.
+  NOT for creating or running projects - use manage-project for that.
 ---
 
 # Docker Test Skill
@@ -44,7 +44,7 @@ See `test/README.md` for full documentation on adding new auth modes and backend
 | Docker available | Docker daemon running |
 | Docker Compose | Compose v2 available |
 | Image build | ralph-loop:latest builds |
-| Template exists | template/BUILDER_PROMPT.md present |
+| Template exists | template/.project/prompts/BUILDER.md present |
 | anthropic-oauth | Host ~/.claude mounted |
 | GLM auth | z.ai backend (requires GLM_AUTH_TOKEN) |
 | anthropic-api | Direct API (requires ANTHROPIC_API_KEY) |
