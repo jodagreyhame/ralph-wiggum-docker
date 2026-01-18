@@ -8,12 +8,10 @@ set -euo pipefail
 # Get CLI type from argument or environment
 CLI_TYPE="${1:-${RALPH_BUILDER_BACKEND:-claude}}"
 
-# Script directory for sourcing CLI configs (resolve symlinks to get actual location)
-SCRIPT_SOURCE="${BASH_SOURCE[0]}"
-if [[ -L "$SCRIPT_SOURCE" ]]; then
-    SCRIPT_SOURCE="$(readlink -f "$SCRIPT_SOURCE" 2>/dev/null || readlink "$SCRIPT_SOURCE")"
-fi
-SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_SOURCE")" && pwd)"
+# In Docker container, files are always at /app
+# ralph.sh is at /app/ralph.sh (with symlink at /ralph.sh)
+# lib/ is at /app/lib/, cli/ is at /app/cli/
+SCRIPT_DIR="/app"
 
 # Source library modules
 source "$SCRIPT_DIR/lib/colors.sh"
