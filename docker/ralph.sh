@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Get CLI type from argument or environment
-CLI_TYPE="${1:-${RALPH_CLI:-claude}}"
+CLI_TYPE="${1:-${RALPH_BUILDER_BACKEND:-claude}}"
 
 # Script directory for sourcing CLI configs (resolve symlinks to get actual location)
 SCRIPT_SOURCE="${BASH_SOURCE[0]}"

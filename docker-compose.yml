@@ -31,7 +31,6 @@ services:
       # Project settings (set by launcher or command line)
       - RALPH_PROJECT_NAME=${RALPH_PROJECT_NAME:-my-project}
       - RALPH_MAX_ITERATIONS=${RALPH_MAX_ITERATIONS:-100}
-      - RALPH_COMPLETION_PROMISE=${RALPH_COMPLETION_PROMISE:-TASK COMPLETE}
 
       # Auth mode: anthropic-oauth, anthropic-api, gemini-oauth, gemini-api,
       #            openai-oauth, openai-api, opencode-oauth, opencode-api, glm

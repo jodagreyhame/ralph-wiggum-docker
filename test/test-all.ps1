@@ -211,19 +211,76 @@ function New-TestProject {
     $dir = ".projects\$TestPrefix-$Name"
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     New-Item -ItemType Directory -Force -Path "$dir\logs" | Out-Null
-    New-Item -ItemType Directory -Force -Path "$dir\signals" | Out-Null
     New-Item -ItemType Directory -Force -Path "$dir\.project\state" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$dir\.project\prompts" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$dir\.project\review" | Out-Null
+    New-Item -ItemType Directory -Force -Path "$dir\.project\architect" | Out-Null
+
+    # Write GOAL.md
+    @"
+# Project Goal
+
+## Objective
+Connection test - verify agent can connect and respond.
+
+## Completion Criteria
+- [ ] Create file ``test-result.txt`` with content: ``CONNECTED``
+- [ ] Signal completion
+"@ | Set-Content "$dir\GOAL.md" -Encoding UTF8
 
     # Write test prompt
-    $QuickTestPrompt | Set-Content "$dir\BUILDER_PROMPT.md" -Encoding UTF8
+    $QuickTestPrompt | Set-Content "$dir\.project\prompts\BUILDER.md" -Encoding UTF8
 
-    # Write config.json with NEW schema (backend + auth_mode)
+    # Write config.json with full 3-tier schema
     @{
-        backend = $Backend
-        auth_mode = $AuthMode
+        name = $Name
+        description = "Test project"
+        version = "0.1.0"
+        prompts = @{
+            dir = ".project/prompts"
+            goal = "GOAL.md"
+            builder = "BUILDER.md"
+            reviewer = "REVIEWER.md"
+            architect = "ARCHITECT.md"
+        }
+        builder = @{
+            backend = $Backend
+            auth_mode = $AuthMode
+            model = $null
+            session_mode = "fresh"
+        }
+        reviewer = @{
+            enabled = $false
+            backend = "claude"
+            auth_mode = "anthropic-oauth"
+            model = $null
+            session_mode = "fresh"
+        }
+        architect = @{
+            enabled = $false
+            backend = "gemini"
+            auth_mode = "gemini-oauth"
+            model = $null
+            session_mode = "resume"
+        }
+        escalation = @{
+            enabled = $false
+            max_builder_failures = 3
+        }
+        provider_fallback = @{
+            enabled = $false
+            failure_threshold = 10
+            sequence = @()
+        }
+        task_mode = @{
+            enabled = $false
+            specs_dir = ".project/specs/tasks"
+            steering_file = ".project/steering.md"
+        }
         max_iterations = 2
-        completion_promise = "TEST PASSED"
-    } | ConvertTo-Json | Set-Content "$dir\config.json" -Encoding UTF8
+        completion_enabled = $true
+        knowledge_dir = ".project"
+    } | ConvertTo-Json -Depth 10 | Set-Content "$dir\config.json" -Encoding UTF8
 
     # Write minimal AGENTS.md and create CLAUDE.md symlink
     "# Test Project`nMinimal test configuration." | Set-Content "$dir\AGENTS.md" -Encoding UTF8
@@ -255,20 +312,29 @@ function Wait-ForCompletion {
         [int]$TimeoutSeconds = 60
     )
 
-    $completionFile = "$ProjectDir\logs\completion.json"
-    $outputLog = "$ProjectDir\logs\iteration_001\output.log"
+    $completionFileNew = "$ProjectDir\.project\state\completion.txt"
+    $completionFileLegacy = "$ProjectDir\logs\completion.json"
+    $outputLog = "$ProjectDir\logs\iteration_001\output.live"
     $startTime = Get-Date
 
     while ((Get-Date) -lt $startTime.AddSeconds($TimeoutSeconds)) {
-        # Check for completion.json
-        if (Test-Path $completionFile) {
-            $completion = Get-Content $completionFile -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+        # Check for completion.txt (new file-based signaling)
+        if (Test-Path $completionFileNew) {
+            $content = Get-Content $completionFileNew -Raw -ErrorAction SilentlyContinue
+            if ($content -match "COMPLETE") {
+                return @{ Success = $true; Message = "Completed" }
+            }
+        }
+
+        # Check for completion.json (legacy)
+        if (Test-Path $completionFileLegacy) {
+            $completion = Get-Content $completionFileLegacy -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
             if ($completion.status -eq "complete") {
                 return @{ Success = $true; Message = "Completed successfully" }
             }
         }
 
-        # Check for output with promise
+        # Check for output (legacy promise detection)
         if (Test-Path $outputLog) {
             $output = Get-Content $outputLog -Raw -ErrorAction SilentlyContinue
             if ($output -match "TEST PASSED") {

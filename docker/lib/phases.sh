@@ -2,14 +2,9 @@
 # lib/phases.sh - Reviewer and Architect phase execution
 # Handles the review pipeline for 3-tier system
 
-# Helper: Clear GLM pollution from environment
-clear_glm_env() {
-    unset ANTHROPIC_AUTH_TOKEN
-    unset ANTHROPIC_BASE_URL
-    unset ANTHROPIC_DEFAULT_SONNET_MODEL
-    unset ANTHROPIC_DEFAULT_OPUS_MODEL
-    unset ANTHROPIC_DEFAULT_HAIKU_MODEL
-}
+# Source shared environment utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/env.sh"
 
 # Helper: Apply auth mode for a role
 # Args: auth_mode, model (optional)

@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+# Source shared environment utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/env.sh"
+
 # If running as root, fix permissions then switch to claude user
 if [ "$(id -u)" = "0" ]; then
     # Fix ownership of project directory (mounted from Windows as root)
@@ -203,35 +207,20 @@ if [[ -f "$CONFIG_FILE" ]]; then
     API_KEY=$(jq -r '.builder.api_key // empty' "$CONFIG_FILE")
     API_BASE_URL=$(jq -r '.builder.api_base_url // empty' "$CONFIG_FILE")
 
-    # Helper: Clear GLM pollution from docker-compose environment
-    clear_glm_env() {
-        unset ANTHROPIC_AUTH_TOKEN
-        unset ANTHROPIC_BASE_URL
-        unset ANTHROPIC_DEFAULT_SONNET_MODEL
-        unset ANTHROPIC_DEFAULT_OPUS_MODEL
-        unset ANTHROPIC_DEFAULT_HAIKU_MODEL
-    }
-
-    # Helper: Apply model if specified
-    apply_model() {
-        if [[ -n "$MODEL" ]]; then
-            export ANTHROPIC_MODEL="$MODEL"
-            echo -e "  ${DIM}Model: $MODEL${NC}"
-        fi
-    }
-
     # Handle auth modes - each mode sets CLI and configures environment
     case "$AUTH_MODE" in
         anthropic-oauth)
             CLI="claude"
             clear_glm_env
-            apply_model
+            apply_model "claude" "$MODEL"
+            [[ -n "$MODEL" ]] && echo -e "  ${DIM}Model: $MODEL${NC}"
             echo -e "  ${DIM}Auth: anthropic-oauth (host ~/.claude)${NC}"
             ;;
         anthropic-api)
             CLI="claude"
             clear_glm_env
-            apply_model
+            apply_model "claude" "$MODEL"
+            [[ -n "$MODEL" ]] && echo -e "  ${DIM}Model: $MODEL${NC}"
             if [[ -n "$API_KEY" ]]; then
                 export ANTHROPIC_API_KEY="$API_KEY"
             fi
@@ -315,7 +304,6 @@ export RALPH_REVIEWER_PROMPT_FILE="${PROMPTS_DIR}/${REVIEWER_PROMPT}"
 export RALPH_ARCHITECT_PROMPT_FILE="${PROMPTS_DIR}/${ARCHITECT_PROMPT}"
 
 # Export settings for ralph scripts
-export RALPH_CLI_BACKEND="$CLI"
 export RALPH_MAX_ITERATIONS="$MAX_ITERATIONS"
 export RALPH_COMPLETION_ENABLED="$COMPLETION_ENABLED"
 export RALPH_PROJECT_NAME="${RALPH_PROJECT_NAME:-PROJECT}"
@@ -324,6 +312,7 @@ export RALPH_LOG_DIR="${RALPH_LOG_DIR:-logs}"
 # Export builder settings
 export RALPH_BUILDER_BACKEND="$CLI"
 export RALPH_BUILDER_AUTH_MODE="$AUTH_MODE"
+export RALPH_BUILDER_MODEL="$MODEL"
 export RALPH_BUILDER_SESSION_MODE="$BUILDER_SESSION_MODE"
 
 # Export reviewer settings
@@ -394,10 +383,10 @@ case "$CLI" in
 esac
 
 # Check if CLI config exists
-if [[ ! -f "/cli/${CLI_TYPE}.sh" ]]; then
+if [[ ! -f "/ralph/cli/${CLI_TYPE}.sh" ]]; then
     echo -e "${RED}ERROR: Unknown CLI: $CLI_TYPE${NC}"
     echo "Available CLIs:"
-    ls -1 /cli/*.sh 2>/dev/null | xargs -I{} basename {} .sh || echo "  (none)"
+    ls -1 /ralph/cli/*.sh 2>/dev/null | xargs -I{} basename {} .sh || echo "  (none)"
     exit 1
 fi
 

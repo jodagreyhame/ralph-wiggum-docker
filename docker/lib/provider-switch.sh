@@ -56,7 +56,6 @@ switch_builder_provider() {
     # Update environment
     export RALPH_BUILDER_BACKEND="$new_backend"
     export RALPH_BUILDER_AUTH_MODE="$new_auth_mode"
-    export RALPH_CLI="$new_backend"
     export CLI_TYPE="$new_backend"
 
     # Set model env var before sourcing CLI config
