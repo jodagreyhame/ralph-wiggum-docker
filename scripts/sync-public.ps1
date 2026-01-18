@@ -1,16 +1,32 @@
 # sync-public.ps1 - Sync private repo to public repo
-# Usage: .\scripts\sync-public.ps1 [-Push] [-Message "commit message"]
+# Usage: .\scripts\sync-public.ps1 [-PublicRepo <path>] [-Push] [-Message "commit message"]
+#
+# The public repo path can be specified via:
+#   1. -PublicRepo parameter
+#   2. RALPH_PUBLIC_REPO environment variable
+#   3. Otherwise, an error is shown
 
 param(
+    [string]$PublicRepo = $env:RALPH_PUBLIC_REPO,
     [switch]$Push,
     [string]$Message = "Sync from private repo"
 )
 
 $ErrorActionPreference = "Stop"
 
+# Validate PublicRepo parameter
+if (-not $PublicRepo) {
+    Write-Host "ERROR: Public repository path not specified" -ForegroundColor Red
+    Write-Host "`nUsage: .\scripts\sync-public.ps1 -PublicRepo <path> [-Push] [-Message `"msg`"]" -ForegroundColor Yellow
+    Write-Host "   Or: Set RALPH_PUBLIC_REPO environment variable`n" -ForegroundColor Yellow
+    exit 1
+}
+
 # Paths
-$Private = "G:\Projects\_Prod\ralph-wiggum-docker"
-$Public = "G:\Projects\_Public\ralph-wiggum-docker"
+$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Split-Path -Parent $ScriptRoot
+$Private = $ProjectRoot
+$Public = $PublicRepo
 
 # Directories to exclude (private stuff not in .gitignore)
 $ExcludeDirs = @(
