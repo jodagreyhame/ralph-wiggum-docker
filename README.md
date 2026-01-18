@@ -20,7 +20,11 @@
 [![Spotify](https://img.shields.io/badge/🎵_Main_Theme-John_Williams-1DB954?style=for-the-badge&labelColor=0a0a1a&logo=spotify&logoColor=1DB954)](https://open.spotify.com/track/7a9UUo3zfID7Ik2fTQjRLi)
 
 <!-- Dynamic Typing Effect (via readme-typing-svg service) -->
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=16&duration=3000&pause=1000&color=FFE81F&background=0A0A1A00&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=60&lines=A+long+time+ago+in+a+Docker+container+far%2C+far+away....;The+RALPH+WIGGUM+technique+awakens...)](https://github.com/anthropics/claude-code)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=16&duration=3000&pause=1000&color=FFE81F&background=0A0A1A00&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=60&lines=A+long+time+ago+in+a+Docker+container+far%2C+far+away....;The+RALPH+WIGGUM+technique+awakens..." />
+  <source media="(prefers-color-scheme: light)" srcset="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=16&duration=3000&pause=1000&color=000000&background=FFFFFF00&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=60&lines=A+long+time+ago+in+a+Docker+container+far%2C+far+away....;The+RALPH+WIGGUM+technique+awakens..." />
+  <img alt="Typing SVG" src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=16&duration=3000&pause=1000&color=000000&background=FFFFFF00&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=60&lines=A+long+time+ago+in+a+Docker+container+far%2C+far+away....;The+RALPH+WIGGUM+technique+awakens..." />
+</picture>
 
 <!-- Light/Dark Mode Hero Images -->
 <picture>
