@@ -177,12 +177,15 @@ test_cli_delete_invalid() {
 # ══════════════════════════════════════════════════════════
 
 test_display_dashboard() {
-    # Find a project with task specs
+    # Find a project with actual task phase files (not just the directory)
     local test_dir=""
     for dir in "$ROOT_DIR/.projects"/*/; do
         if [[ -d "${dir}.project/specs/tasks" ]]; then
-            test_dir="$dir"
-            break
+            # Check for actual phase-*.json files
+            if compgen -G "${dir}.project/specs/tasks/phase-*.json" > /dev/null 2>&1; then
+                test_dir="$dir"
+                break
+            fi
         fi
     done
 
@@ -204,8 +207,10 @@ test_display_tasks() {
     local test_dir=""
     for dir in "$ROOT_DIR/.projects"/*/; do
         if [[ -d "${dir}.project/specs/tasks" ]]; then
-            test_dir="$dir"
-            break
+            if compgen -G "${dir}.project/specs/tasks/phase-*.json" > /dev/null 2>&1; then
+                test_dir="$dir"
+                break
+            fi
         fi
     done
 
@@ -227,8 +232,10 @@ test_display_progress() {
     local test_dir=""
     for dir in "$ROOT_DIR/.projects"/*/; do
         if [[ -d "${dir}.project/specs/tasks" ]]; then
-            test_dir="$dir"
-            break
+            if compgen -G "${dir}.project/specs/tasks/phase-*.json" > /dev/null 2>&1; then
+                test_dir="$dir"
+                break
+            fi
         fi
     done
 
@@ -250,8 +257,10 @@ test_display_task_detail() {
     local test_dir=""
     for dir in "$ROOT_DIR/.projects"/*/; do
         if [[ -d "${dir}.project/specs/tasks" ]]; then
-            test_dir="$dir"
-            break
+            if compgen -G "${dir}.project/specs/tasks/phase-*.json" > /dev/null 2>&1; then
+                test_dir="$dir"
+                break
+            fi
         fi
     done
 

@@ -229,7 +229,11 @@ function Get-ProjectWithTasks {
     foreach ($project in $projects) {
         $tasksPath = Join-Path $project.FullName ".project\specs\tasks"
         if (Test-Path $tasksPath) {
-            return $project.FullName
+            # Check for actual phase files with tasks, not just the directory
+            $phaseFiles = Get-ChildItem $tasksPath -Filter "phase-*.json" -ErrorAction SilentlyContinue
+            if ($phaseFiles.Count -gt 0) {
+                return $project.FullName
+            }
         }
     }
     return $null
