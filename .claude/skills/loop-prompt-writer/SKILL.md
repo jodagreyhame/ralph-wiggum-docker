@@ -1,12 +1,7 @@
 ---
 name: loop-prompt-writer
 description: |
-  Write effective prompts for iterative research and Ralph loops. Use when:
-  - User asks to "write a prompt", "create a bootstrap prompt", "design a research prompt"
-  - User wants to create a new Ralph Loop project prompt
-  - User asks to "build a prompt", "create an iterative prompt", or "set up a Ralph project"
-  - User mentions "Ralph Wiggum", "Ralph Loop", or "iterative development"
-  - Any self-improving/endless loop system with state tracking and termination conditions
+  Write effective prompts for iterative research and Ralph Loop projects. Covers both simple projects (GOAL.md only) and advanced projects (custom role prompts for Builder/Reviewer/Architect). Use when: (1) Writing GOAL.md - "write a goal", "create a prompt", "set up a Ralph project", "write completion criteria", (2) Customizing role prompts - "customize builder prompt", "modify reviewer instructions", "add architectural constraints", "customize role workflow", (3) User mentions "Ralph Wiggum", "Ralph Loop", "iterative development", "bootstrap prompt", "endless loop". Provides templates for GOAL.md and role prompts (BUILDER.md, REVIEWER.md, ARCHITECT.md) with placeholder-based customization.
 ---
 
 # Loop Prompt Writer
@@ -62,186 +57,23 @@ project/
 
 ## Building the Prompt
 
-### Step 1: Header
+For detailed step-by-step instructions, see [building-prompts.md](references/building-prompts.md).
 
-```markdown
-# {NAME}: {Brief Description}
+### Quick Overview
 
-**ENDLESS ITERATIVE BUILD.** Each iteration:
-- READ `.project/` first - understand state and learnings
-- DON'T recreate existing work - build on it
-- LEARN from successes and failures
-- COMMIT before ending - no commit = incomplete
-```
-
-### Step 2: The Goal
-
-**Goal-focused, not prescriptive.** Describe:
-- **What** we're building (the destination)
-- **Constraints** that must be true
-- **Test** that proves it works
-
-Let the AI discover HOW through iteration.
-
-```markdown
-## The Goal
-
-{What we're building - be concise}
-
-**Target**: {Measurable outcome}
-
-**Test**: {Concrete way to verify success}
-```
-
-**Bad**: 200 lines describing exact pipeline stages, tools, file structures
-**Good**: 20 lines describing goal, constraints, and success test
-
-### Step 3: Architecture (Optional)
-
-Only add architecture requirements when they actually matter:
-
-**Two-Phase Pattern** (for complex processing):
-```markdown
-## Architecture
-
-### Phase 1: Code + Database (80%+)
-Deterministic, pattern-based processing
-
-### Phase 2: AI Skills (~20%)
-For what requires intelligence
-
-Goal: Maximize Phase 1, minimize AI dependency.
-```
-
-**Bootstrap Pattern** (for learning from data):
-```markdown
-## Approach
-
-Don't guess. Learn by doing:
-1. Process known inputs
-2. Track every transformation
-3. Build patterns from observations
-```
-
-Skip this section if the AI can figure out the approach itself.
-
-### Step 4: Core Principles
-
-3-5 non-negotiable rules:
-
-```markdown
-## Core Principles
-
-1. **No Hardcoded Secrets** - Environment variables only
-2. **Real Data Only** - No mocks, no stubs
-3. **Fail Loudly** - Clear errors, no silent fallbacks
-```
-
-### Step 5: Project Structure
-
-```markdown
-## Project Structure
-
-/project/
-├── GOAL.md                  # Project objective (EDIT THIS)
-├── CLAUDE.md                # Development rules
-├── config.json              # Configuration
-├── .project/                # State & knowledge
-│   ├── prompts/             # Role prompts (DO NOT EDIT)
-│   ├── state/current.json   # Current focus
-│   └── knowledge/           # Patterns, failures
-├── logs/                    # Iteration logs
-└── src/                     # Source code
-```
-
-### Step 6: The Loop (6 lines max)
-
-Define the exact cycle. Number the steps.
-
-```
-1. READ  state file
-2. FIX   one thing
-3. WRITE files
-4. UPDATE state
-5. COMMIT
-6. REPEAT
-```
-
-### Step 7: Critical Thinking Section
-
-**Prevents checkbox-without-work.** Add 3-5 hard questions specific to YOUR project:
-
-```markdown
-## Critical Questions
-
-Before marking anything complete, verify:
-
-- {Does X actually work, or just look like it works?}
-- {What happens at scale / edge cases?}
-- {Is the output actually usable for its purpose?}
-
-**If "no" or "maybe" - FIX IT FIRST.**
-```
-
-Keep questions specific to what could go wrong in THIS project.
-
-### Step 8: State File (JSON)
-
-Machine-parseable progress tracking:
-
-```json
-{
-  "iteration": 0,
-  "status": "in_progress",
-  "checklist": {
-    "item_one": false,
-    "item_two": false
-  },
-  "history": []
-}
-```
-
-### Step 9: Priority Order
-
-```markdown
-## Priority
-
-1. **Foundation** - Core infrastructure
-2. **Core Features** - Main functionality
-3. **Integration** - Connect components
-4. **Polish** - Usability, docs
-```
-
-### Step 10: Success Criteria
-
-Checkboxes for completion:
-
-```markdown
-## Success Criteria
-
-- [ ] {Specific, testable criterion}
-- [ ] {Another criterion}
-- [ ] {Final criterion}
-```
-
-### Step 11: Completion
-
-Signal completion via file:
-
-```markdown
-## Completion
-
-When ALL criteria are met, signal completion:
-
-```bash
-echo "COMPLETE" > .project/state/completion.txt
-```
-
-**Criteria:**
-- {Criterion from success criteria}
-- {Another}
-- {Final}
-```
+| Step | What | Why |
+|------|------|-----|
+| **1. Header** | Endless iterative build pattern | Sets the iteration mindset |
+| **2. The Goal** | What + constraints + test | Destination, not prescription |
+| **3. Architecture** | Two-phase or bootstrap patterns (optional) | Only when approach matters |
+| **4. Core Principles** | 3-5 non-negotiable rules | Guardrails for iteration |
+| **5. Project Structure** | File organization | Orient the AI |
+| **6. The Loop** | 6-line cycle definition | Clear iteration steps |
+| **7. Critical Questions** | 3-5 hard project-specific questions | Prevent checkbox-without-work |
+| **8. State File** | JSON progress tracking | Machine-parseable state |
+| **9. Priority Order** | Ordered work phases | What to build when |
+| **10. Success Criteria** | Completion checkboxes | When is it done? |
+| **11. Completion** | Signal file creation | How to mark complete |
 
 ---
 
@@ -331,5 +163,15 @@ See `assets/role-templates/` for customizable examples:
 - [BUILDER-template.md](assets/role-templates/BUILDER-template.md) - Builder workflow with placeholders
 - [REVIEWER-template.md](assets/role-templates/REVIEWER-template.md) - Reviewer instructions with placeholders
 - [ARCHITECT-template.md](assets/role-templates/ARCHITECT-template.md) - Architect review with placeholders
+
+**Placeholders to customize:**
+- `{INSERT_PROJECT_SPECIFIC_PRINCIPLES}` - Your non-negotiable requirements
+- `{INSERT_REFERENCE_DOCS_TABLE}` - Links to specs, schemas, API docs
+- `{INSERT_FIRST_ITERATION_REQUIREMENTS}` - Mandatory first steps (if any)
+- `{INSERT_ADDITIONAL_STATE_FILES}` - Extra state files to read
+- `{INSERT_ADDITIONAL_QUALITY_STANDARDS}` - Project-specific quality standards
+- `{INSERT_ADDITIONAL_REVIEW_STEPS}` - Custom review process steps
+- `{INSERT_CUSTOM_CRITERIA}` - Additional architect review criteria
+- `{INSERT_CUSTOM_PASS_FAIL_CRITERIA}` - Extra pass/fail rules
 
 Copy these to `.project/prompts/` and customize the placeholders for your project.
