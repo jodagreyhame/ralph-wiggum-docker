@@ -2,6 +2,14 @@ name: Auto Release
 
 # Runs when PR is merged to main
 # Bumps version, updates changelog, creates tag and GitHub release
+#
+# SETUP REQUIRED:
+# This workflow needs a PAT to bypass branch protection rules.
+# 1. Create a Fine-grained PAT at https://github.com/settings/tokens?type=beta
+#    - Repository access: This repository only
+#    - Permissions: Contents (Read and write), Pull requests (Read and write)
+# 2. Add as repository secret named RELEASE_TOKEN:
+#    Settings → Secrets and variables → Actions → New repository secret
 
 on:
   pull_request:
@@ -23,7 +31,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -322,12 +330,13 @@ jobs:
           name: v${{ steps.version.outputs.new }}
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Add comment to PR
         if: steps.check.outputs.should_release == 'true'
         uses: actions/github-script@v8
         with:
+          github-token: ${{ secrets.RELEASE_TOKEN }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
