@@ -6,7 +6,7 @@ name: Auto Release
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: write
@@ -15,8 +15,10 @@ permissions:
 jobs:
   prepare-release:
     runs-on: ubuntu-latest
-    # Don't run on PRs from forks (they can't push back)
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Don't run on PRs from forks (they can't push back) or when PR is closed
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action != 'closed'
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
       bump_type: ${{ steps.check.outputs.bump_type }}

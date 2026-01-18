@@ -1,6 +1,6 @@
 {
   "name": "ralph-terminal",
-  "version": "0.1.8",
+  "version": "0.1.11",
   "description": "TUI dashboard and project configurator for ralph-wiggum-docker-loop",
   "type": "module",
   "main": "dist/cli/index.js",
