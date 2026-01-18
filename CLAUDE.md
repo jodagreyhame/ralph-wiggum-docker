@@ -420,16 +420,58 @@ This project uses automated semantic versioning with conventional commits.
 
 ## Usage
 
-### Linux/Mac (Bash)
+### Recommended: CLI Command
 
+**Best for most users** - Automatically reads config.json:
+
+```bash
+# Build CLI (one time)
+bun install && bun run build
+
+# Run a project
+ralph run my-project
+```
+
+### Advanced: Launcher Scripts
+
+**For advanced users** - Reads config.json with additional flags:
+
+**Linux/Mac:**
 ```bash
 # Build image once
 docker compose build
 
+# Run a project
+./scripts/run.sh my-project
+
+# With flags
+./scripts/run.sh my-project --build  # Force rebuild
+./scripts/run.sh my-project --shell  # Open shell instead of loop
+```
+
+**Windows (PowerShell):**
+```powershell
+# Build image once
+docker compose build
+
+# Run a project
+.\scripts\run.ps1 -Project my-project
+
+# With flags
+.\scripts\run.ps1 -Project my-project -Build  # Force rebuild
+.\scripts\run.ps1 -Project my-project -Shell  # Open shell instead of loop
+```
+
+### Direct Docker (Manual Control)
+
+**For manual control** - Set environment variables yourself:
+
+**Linux/Mac:**
+```bash
 # Run with builder only (no review)
 RALPH_PROJECT_DIR=./.projects/my-project docker compose run --rm ralph
 
-# With Anthropic OAuth
+# With specific auth mode
 RALPH_PROJECT_DIR=./.projects/my-project RALPH_AUTH_MODE=anthropic-oauth docker compose run --rm ralph
 
 # Run multiple in parallel (separate terminals)
@@ -437,12 +479,8 @@ RALPH_PROJECT_DIR=./.projects/project-a docker compose run --rm ralph &
 RALPH_PROJECT_DIR=./.projects/project-b docker compose run --rm ralph &
 ```
 
-### Windows (PowerShell)
-
+**Windows (PowerShell):**
 ```powershell
-# Build image once
-docker compose build
-
 # Run a project (set env var BEFORE the command)
 $env:RALPH_PROJECT_DIR="./.projects/my-project"; docker compose run --rm ralph
 

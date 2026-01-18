@@ -1,5 +1,8 @@
 #!/bin/bash
-# run.sh - Launch Ralph Loop in Docker
+# run.sh - Primary launcher for Ralph Loop projects
+#
+# Purpose: Config-driven launcher that reads config.json and starts Docker container
+# Called by: ralph run <project>
 #
 # Reads configuration from .projects/{project}/config.json and starts the Docker container
 # with the appropriate CLI and settings.

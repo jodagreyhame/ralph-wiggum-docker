@@ -1,5 +1,12 @@
 #!/bin/bash
-# run.sh - Launch Ralph Loop worker for a project
+# run.sh - Skill launcher for Ralph Loop projects (flag-driven)
+#
+# Purpose: Claude Code skill launcher with CLI flag support
+# Called by: Claude Code manage-project skill invocation
+# Features: --background, --unlimited, --auth, --iterations flags
+#
+# Note: This launcher does NOT read config.json - it uses CLI flags instead.
+#       For config-driven launching, use scripts/run.sh
 #
 # Usage:
 #   .claude/skills/manage-project/scripts/run.sh <project-name>

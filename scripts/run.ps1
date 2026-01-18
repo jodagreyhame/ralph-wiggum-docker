@@ -1,4 +1,7 @@
-# run.ps1 - Launch Ralph Loop in Docker
+# run.ps1 - Primary launcher for Ralph Loop projects (PowerShell)
+#
+# Purpose: Config-driven launcher that reads config.json and starts Docker container
+# Called by: ralph run <project> (via scripts/run.sh on Windows)
 #
 # Reads configuration from .projects/{project}/config.json and starts the Docker container
 # with the appropriate CLI and settings.

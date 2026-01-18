@@ -1,13 +1,7 @@
 ---
 name: manage-project
 description: |
-  Manage Ralph Loop projects. Use this skill when user wants to:
-  - CREATE a new project ("new project", "start a project", "create project", "build a <thing>")
-  - RUN a project ("start ralph", "run project", "launch project")
-  - STOP a project ("stop ralph", "stop project", "kill project")
-  - CHECK STATUS ("project status", "list projects", "what's running")
-
-  This is the PRIMARY skill for project lifecycle management.
+  Project lifecycle management for Ralph Loop Docker projects. Provides helper scripts for running, stopping, and monitoring projects with Docker containers. Use this skill when the user wants to: (1) RUN a project - "start ralph", "run project", "launch <project-name>", "start the loop", (2) STOP a project - "stop ralph", "stop project", "kill project", "stop the container", (3) CHECK STATUS - "project status", "list projects", "what's running", "show active projects", (4) VIEW LOGS - "show logs", "check output", "monitor progress", (5) Use helper scripts with flags like --background, --unlimited, --auth modes. IMPORTANT: On Windows, always use .ps1 PowerShell scripts (.\.claude\skills\manage-project\scripts\*.ps1). On Linux/Mac, use .sh bash scripts. This is the PRIMARY skill for Ralph Loop project operations and Docker container management.
 ---
 
 # Project Manager
@@ -37,7 +31,18 @@ See [docs/CLI.md](docs/CLI.md) for full CLI reference.
 
 ## Helper Scripts
 
+> **IMPORTANT:** On Windows, use `.ps1` (PowerShell) scripts. On Linux/Mac, use `.sh` (bash) scripts.
+
 ### Run Projects
+
+**Windows (PowerShell)** - Use this on Windows:
+```powershell
+.\.claude\skills\manage-project\scripts\run.ps1 <project>                 # Run interactively
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background     # Run in background
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Unlimited      # Unlimited iterations
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background -Unlimited  # Both
+.\.claude\skills\manage-project\scripts\run.ps1 <project> -AuthMode anthropic-oauth   # Specify auth
+```
 
 **Linux/Mac (bash):**
 ```bash
@@ -48,43 +53,52 @@ See [docs/CLI.md](docs/CLI.md) for full CLI reference.
 .claude/skills/manage-project/scripts/run.sh <project> --auth anthropic-oauth # Specify auth mode
 ```
 
-**Windows (PowerShell):**
-```powershell
-.\.claude\skills\manage-project\scripts\run.ps1 <project>                 # Run interactively
-.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background     # Run in background
-.\.claude\skills\manage-project\scripts\run.ps1 <project> -Unlimited      # Unlimited iterations
-.\.claude\skills\manage-project\scripts\run.ps1 <project> -Background -Unlimited  # Both
-.\.claude\skills\manage-project\scripts\run.ps1 <project> -AuthMode anthropic-oauth   # Specify auth
-```
-
 ### Stop Projects
 
-```bash
-.claude/skills/manage-project/scripts/stop.sh <project>    # Stop specific project
-.claude/skills/manage-project/scripts/stop.sh --all        # Stop all Ralph containers
-```
-
+**Windows (PowerShell):**
 ```powershell
 .\.claude\skills\manage-project\scripts\stop.ps1 <project>  # Stop specific project
 .\.claude\skills\manage-project\scripts\stop.ps1 -All       # Stop all Ralph containers
 ```
 
-### Status
-
-**Linux/Mac:**
+**Linux/Mac (bash):**
 ```bash
-.claude/skills/manage-project/scripts/status.sh [project]
+.claude/skills/manage-project/scripts/stop.sh <project>    # Stop specific project
+.claude/skills/manage-project/scripts/stop.sh --all        # Stop all Ralph containers
 ```
 
-**Windows:**
+### Status
+
+**Windows (PowerShell):**
 ```powershell
 .\.claude\skills\manage-project\scripts\status.ps1 [project]
+```
+
+**Linux/Mac (bash):**
+```bash
+.claude/skills/manage-project/scripts/status.sh [project]
 ```
 
 ### View Logs & Monitor
 
 For detailed log viewing and real-time monitoring, use the **logs-viewer** skill:
 
+**Windows (PowerShell):**
+```powershell
+# View all iterations
+.\.claude\skills\logs-viewer\scripts\logs.ps1 <project>
+
+# View specific iteration
+.\.claude\skills\logs-viewer\scripts\logs.ps1 <project> -Iteration latest
+
+# Watch live output
+.\.claude\skills\logs-viewer\scripts\watch.ps1 <project>
+
+# Check current status
+Get-Content .projects\<project>\logs\status.json
+```
+
+**Linux/Mac (bash):**
 ```bash
 # View all iterations
 .claude/skills/logs-viewer/scripts/logs.sh <project>
@@ -97,12 +111,6 @@ For detailed log viewing and real-time monitoring, use the **logs-viewer** skill
 
 # Check current status
 cat .projects/<project>/logs/status.json
-```
-
-Or on Windows:
-```powershell
-.\.claude\skills\logs-viewer\scripts\logs.ps1 <project>
-.\.claude\skills\logs-viewer\scripts\watch.ps1 <project>
 ```
 
 ## Docker Commands (Single Service Pattern)
