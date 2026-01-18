@@ -26,7 +26,7 @@ export function runCommand(projectName: string): void {
         {
           stdio: "inherit",
           cwd: process.cwd(),
-        }
+        },
       );
     } else {
       // Unix: use Bash script

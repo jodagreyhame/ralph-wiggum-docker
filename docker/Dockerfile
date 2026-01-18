@@ -29,6 +29,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Bun (fast JS runtime and package manager)
+RUN curl -fsSL https://bun.sh/install | bash \
+    && ln -sf /root/.bun/bin/bun /usr/local/bin/bun \
+    && ln -sf /root/.bun/bin/bunx /usr/local/bin/bunx
+
 # Install ALL AI CLIs globally
 RUN npm install -g @anthropic-ai/claude-code
 RUN npm install -g @google/gemini-cli
