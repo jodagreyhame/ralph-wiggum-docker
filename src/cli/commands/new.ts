@@ -5,7 +5,7 @@
 import chalk from 'chalk';
 import type { NewCommandOptions } from '../flags.js';
 import { parseBoolean } from '../flags.js';
-import { applyPreset, validateConfig, type ProjectConfig, type Backend, type AuthMode } from '../../config/index.js';
+import { applyPreset, validateConfig, type ProjectConfig, type Backend, type AuthMode, type SessionMode } from '../../config/index.js';
 import { getProjectDir, projectExists, loadProjectConfig, saveProjectConfig, slugify } from '../../utils/project.js';
 import { copyTemplate, initGitRepo } from '../../utils/template.js';
 
