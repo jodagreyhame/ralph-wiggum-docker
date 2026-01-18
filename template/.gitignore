@@ -20,8 +20,6 @@ secrets.json
 # ══════════════════════════════════════════════════════════════════════════════
 logs/*
 !logs/.gitkeep
-.project/state/*
-!.project/state/current.json
 .project/review/
 .project/architect/
 

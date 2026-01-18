@@ -337,6 +337,26 @@ ralph-wiggum-docker-loop/
 - No files > 300 lines
 - No functions > 50 lines
 
+### Docker Safety
+
+**NEVER stop a Docker container without first verifying the correct container/project instance:**
+
+```bash
+# 1. ALWAYS list running containers first
+docker ps --filter "name=ralph"
+
+# 2. Identify the specific container by project name
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Command}}"
+
+# 3. Stop ONLY the specific container
+docker stop <container-name>
+
+# Or stop by project directory match
+docker ps --filter "name=ralph" --format "{{.Names}}" | grep "<project-name>"
+```
+
+**Why:** Multiple Ralph projects can run in parallel. Stopping the wrong container kills another user's work.
+
 ## Testing
 
 Run the Docker test suite to validate all configurations:
