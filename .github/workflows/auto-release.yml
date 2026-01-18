@@ -30,23 +30,36 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Get previous release tag
+        id: prev_tag
+        run: |
+          # Get the latest tag (previous release)
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            # No tags yet, use first commit
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous release: $PREV_TAG"
+
       - name: Check for release-worthy commits
         id: check
         env:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          # Get commits from the merged PR (between base and head)
-          COMMITS=$(git log --pretty=format:"%s" --no-merges ${BASE_SHA}..${HEAD_SHA})
+          # Get commits since last release on main
+          COMMITS=$(git log --pretty=format:"%s" --no-merges ${{ steps.prev_tag.outputs.tag }}..HEAD)
+
+          # Filter to commits from this PR number
+          PR_NUMBER="${{ github.event.pull_request.number }}"
 
           if [ -z "$COMMITS" ]; then
-            echo "No commits in merged PR"
+            echo "No new commits since last release"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "Commits in merged PR:"
+          echo "Commits since last release:"
           echo "$COMMITS"
 
           # Check for release-worthy commits (feat, fix, docs, refactor, perf)
@@ -129,9 +142,6 @@ jobs:
 
       - name: Generate changelog entries
         if: steps.check.outputs.should_release == 'true'
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           TODAY=$(date +%Y-%m-%d)
@@ -139,11 +149,11 @@ jobs:
 
           mkdir -p docs
 
-          # Generate DETAILED changelog from PR commits (for docs/)
+          # Generate DETAILED changelog from commits since last release
           > /tmp/changelog_detailed.md
 
-          # Get commits from merged PR (between base and head)
-          COMMITS=$(git log --pretty=format:"%s" --no-merges ${BASE_SHA}..${HEAD_SHA})
+          # Get commits since last release on main
+          COMMITS=$(git log --pretty=format:"%s" --no-merges ${{ steps.prev_tag.outputs.tag }}..HEAD)
 
           # Added (feat)
           ADDED=$(echo "$COMMITS" | grep -iE "^feat(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
