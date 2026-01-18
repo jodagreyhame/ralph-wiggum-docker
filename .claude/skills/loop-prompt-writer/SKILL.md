@@ -31,13 +31,15 @@ project/
 ├── CLAUDE.md                  # Development rules
 ├── config.json                # Configuration
 └── .project/
-    └── prompts/               # Generic workflow prompts (DO NOT EDIT)
+    └── prompts/               # Role prompts (CAN BE CUSTOMIZED)
         ├── BUILDER.md         # Builder workflow
         ├── REVIEWER.md        # Reviewer instructions
         └── ARCHITECT.md       # Architect instructions
 ```
 
-**Key insight:** Only edit `GOAL.md`. The prompts in `.project/prompts/` are generic and reference GOAL.md for the specific objective.
+**Key insight:** Most projects only need to edit `GOAL.md`. The default role prompts in `.project/prompts/` are generic and reference GOAL.md.
+
+**Advanced:** For complex projects with specific requirements (e.g., architectural constraints, mandatory code review steps, reference documentation), you can customize the role prompts. See "Customizing Role Prompts" below.
 
 ## GOAL.md Required Sections
 
@@ -306,3 +308,28 @@ How to verify the project is complete:
 ```
 
 The generic builder prompt in `.project/prompts/BUILDER.md` reads this GOAL.md and handles the iteration workflow.
+
+---
+
+## Customizing Role Prompts (Advanced)
+
+For projects with specific architectural requirements, mandatory review steps, or reference documentation, you can customize the role prompts in `.project/prompts/`.
+
+### When to Customize
+
+| Customize If... | Examples |
+|-----------------|----------|
+| **Architectural constraints** | "Must use specific patterns", "Provider-agnostic design required" |
+| **Reference documentation** | Links to specs, schemas, API docs that roles should consult |
+| **Mandatory first steps** | "Must review existing code first", "Must read security guidelines" |
+| **Custom review criteria** | Specific checks beyond code working |
+| **Project-specific workflow** | Different iteration process, special state files |
+
+### Role Prompt Templates
+
+See `assets/role-templates/` for customizable examples:
+- [BUILDER-template.md](assets/role-templates/BUILDER-template.md) - Builder workflow with placeholders
+- [REVIEWER-template.md](assets/role-templates/REVIEWER-template.md) - Reviewer instructions with placeholders
+- [ARCHITECT-template.md](assets/role-templates/ARCHITECT-template.md) - Architect review with placeholders
+
+Copy these to `.project/prompts/` and customize the placeholders for your project.
