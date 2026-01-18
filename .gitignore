@@ -68,3 +68,9 @@ ai-docs/
 # Project-specific docker compose files (main docker-compose.yml must be tracked)
 docker-compose.*.yml
 !docker-compose.yml
+
+# ══════════════════════════════════════════════════════════════════════
+# PRIVATE SCRIPTS (meta/admin tools not for public consumption)
+# ══════════════════════════════════════════════════════════════════════
+scripts/sync-public.ps1
+scripts/sync-public.sh

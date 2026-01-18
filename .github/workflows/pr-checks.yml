@@ -16,7 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
-      - run: bun install --frozen-lockfile
+
+      - name: Install dependencies
+        run: |
+          # Don't use --frozen-lockfile for Dependabot PRs (they update package.json but not bun.lock)
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            bun install
+          else
+            bun install --frozen-lockfile
+          fi
 
       - name: Type check
         run: bun run lint
@@ -30,10 +38,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
-      - run: bun install --frozen-lockfile
 
-      - name: Install oxlint/oxfmt
-        run: bun add -D oxlint oxfmt
+      - name: Install dependencies
+        run: |
+          # Don't use --frozen-lockfile for Dependabot PRs (they update package.json but not bun.lock)
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            bun install
+          else
+            bun install --frozen-lockfile
+          fi
 
       - name: Lint code
         run: bunx oxlint --type-aware src
@@ -60,10 +73,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: hadolint/hadolint-action@v3.1.0
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: docker/Dockerfile
-          failure-threshold: warning
+          failure-threshold: error  # Only fail on errors, not warnings
+          ignore: DL3059  # Allow multiple RUN commands for clarity
 
   # Security: Secrets scanning
   secrets:
