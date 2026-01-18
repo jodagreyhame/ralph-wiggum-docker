@@ -38,6 +38,42 @@ export function validateConfig(config: unknown): ValidationResult {
         errors.push({ path: 'name', message: 'Project name is required' });
     }
 
+    if (typeof cfg.description !== 'string' || !cfg.description.trim()) {
+        errors.push({ path: 'description', message: 'Project description is required' });
+    }
+
+    if (typeof cfg.version !== 'string' || !cfg.version.trim()) {
+        errors.push({ path: 'version', message: 'Project version is required' });
+    } else if (!/^\d+\.\d+\.\d+/.test(cfg.version as string)) {
+        errors.push({ path: 'version', message: 'Version must be in semver format (e.g., 1.0.0)' });
+    }
+
+    if (typeof cfg.knowledge_dir !== 'string' || !cfg.knowledge_dir.trim()) {
+        errors.push({ path: 'knowledge_dir', message: 'knowledge_dir is required' });
+    }
+
+    // Prompts validation
+    if (!cfg.prompts || typeof cfg.prompts !== 'object') {
+        errors.push({ path: 'prompts', message: 'Prompts configuration is required' });
+    } else {
+        const prompts = cfg.prompts as Record<string, unknown>;
+        if (typeof prompts.dir !== 'string' || !prompts.dir) {
+            errors.push({ path: 'prompts.dir', message: 'prompts.dir is required' });
+        }
+        if (typeof prompts.goal !== 'string' || !prompts.goal) {
+            errors.push({ path: 'prompts.goal', message: 'prompts.goal is required' });
+        }
+        if (typeof prompts.builder !== 'string' || !prompts.builder) {
+            errors.push({ path: 'prompts.builder', message: 'prompts.builder is required' });
+        }
+        if (typeof prompts.reviewer !== 'string' || !prompts.reviewer) {
+            errors.push({ path: 'prompts.reviewer', message: 'prompts.reviewer is required' });
+        }
+        if (typeof prompts.architect !== 'string' || !prompts.architect) {
+            errors.push({ path: 'prompts.architect', message: 'prompts.architect is required' });
+        }
+    }
+
     // Builder validation
     if (!cfg.builder || typeof cfg.builder !== 'object') {
         errors.push({ path: 'builder', message: 'Builder configuration is required' });
@@ -50,6 +86,9 @@ export function validateConfig(config: unknown): ValidationResult {
                 path: 'builder.auth_mode',
                 message: `Invalid auth mode for ${builder.backend}: ${builder.auth_mode}`,
             });
+        }
+        if (builder.session_mode && !['fresh', 'resume'].includes(builder.session_mode as string)) {
+            errors.push({ path: 'builder.session_mode', message: 'session_mode must be "fresh" or "resume"' });
         }
     }
 
@@ -64,6 +103,9 @@ export function validateConfig(config: unknown): ValidationResult {
                     path: 'reviewer.auth_mode',
                     message: `Invalid auth mode for ${reviewer.backend}: ${reviewer.auth_mode}`,
                 });
+            }
+            if (reviewer.session_mode && !['fresh', 'resume'].includes(reviewer.session_mode as string)) {
+                errors.push({ path: 'reviewer.session_mode', message: 'session_mode must be "fresh" or "resume"' });
             }
         }
     }
@@ -80,6 +122,9 @@ export function validateConfig(config: unknown): ValidationResult {
                     message: `Invalid auth mode for ${architect.backend}: ${architect.auth_mode}`,
                 });
             }
+            if (architect.session_mode && !['fresh', 'resume'].includes(architect.session_mode as string)) {
+                errors.push({ path: 'architect.session_mode', message: 'session_mode must be "fresh" or "resume"' });
+            }
         }
     }
 
@@ -92,21 +137,4 @@ export function validateConfig(config: unknown): ValidationResult {
     }
 
     return { valid: errors.length === 0, errors };
-}
-
-export function validateConfigFile(configPath: string): Promise<ValidationResult> {
-    return import('fs').then((fs) => {
-        return new Promise((resolve) => {
-            try {
-                const content = fs.readFileSync(configPath, 'utf-8');
-                const config = JSON.parse(content);
-                resolve(validateConfig(config));
-            } catch (err) {
-                resolve({
-                    valid: false,
-                    errors: [{ path: '', message: `Failed to read config: ${(err as Error).message}` }],
-                });
-            }
-        });
-    });
 }
