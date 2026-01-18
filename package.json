@@ -24,7 +24,7 @@
     "commander": "^12.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
+    "@types/node": "^25.0.9",
     "oxfmt": "^0.24.0",
     "oxlint": "^1.39.0",
     "typescript": "~5.7.3"
