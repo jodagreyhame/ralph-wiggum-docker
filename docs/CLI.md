@@ -8,17 +8,75 @@ The Ralph CLI (`ralph`) is a command-line tool for managing Ralph Loop projects.
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
-# Build
-npm run build
+# Build the CLI
+bun run build
 
-# Run from dist
+# Option 1: Link globally (recommended)
+bun link
+# Now you can use 'ralph' from anywhere
+
+# Option 2: Run from dist
 node dist/cli/index.js --help
 
-# Or run directly with bun
+# Option 3: Run directly with bun (development)
 bun run dev --help
 ```
+
+### Global Installation with `bun link`
+
+After building, link the CLI globally to use `ralph` from anywhere:
+
+```bash
+# In the project root
+bun install
+bun run build
+bun link
+
+# Now you can use ralph from any directory
+ralph --help
+ralph new my-project
+ralph run my-project
+```
+
+To unlink:
+```bash
+bun unlink ralph
+```
+
+### Setting Up Symlinks
+
+Each project requires a symlink `CLAUDE.md -> AGENTS.md` for compatibility with Claude Code:
+
+**Linux/Mac:**
+```bash
+# Automatic during project creation
+ralph new my-project
+
+# Manual setup (if needed)
+cd .projects/my-project
+ln -s AGENTS.md CLAUDE.md
+```
+
+**Windows (PowerShell as Administrator):**
+```powershell
+# Automatic during project creation
+ralph new my-project
+
+# Manual setup (if needed)
+cd .projects/my-project
+New-Item -ItemType SymbolicLink -Path CLAUDE.md -Target AGENTS.md
+```
+
+**Windows (without admin - using hard link):**
+```powershell
+# If symlinks require admin and you can't use them
+cd .projects/my-project
+New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
+```
+
+**Note:** The `ralph new` command handles symlink creation automatically. Manual setup is only needed if you're creating projects without the CLI.
 
 ---
 
@@ -245,14 +303,19 @@ ralph validate ./config.json
 
 ### `ralph run <project>`
 
-Run a project using Docker Compose.
+Run a project using Docker Compose. Cross-platform: automatically uses PowerShell on Windows and Bash on Unix.
 
 **Usage:**
 ```bash
 ralph run my-project
 ```
 
-Executes `./scripts/run.sh <project>` or displays manual instructions if the script is not available.
+**Platform-Specific Behavior:**
+
+- **Windows:** Executes `powershell.exe -NoProfile -ExecutionPolicy Bypass -File "./scripts/run.ps1" -Project "my-project"`
+- **Linux/Mac:** Executes `./scripts/run.sh my-project`
+
+Falls back to manual instructions if the script is not available.
 
 ---
 
@@ -424,6 +487,12 @@ ralph new resilient-project \
   --fallback-enabled \
   --fallback-threshold=5 \
   --fallback-sequence='[{"name":"glm","backend":"claude","auth_mode":"glm"},{"name":"claude","backend":"claude","auth_mode":"anthropic-oauth"}]'
+```
+
+### Run a project (cross-platform)
+```bash
+# Works on both Windows (PowerShell) and Unix (Bash)
+ralph run my-project
 ```
 
 ### View project tasks

@@ -6,13 +6,13 @@ An interactive step-by-step visualization of how the Ralph Wiggum Docker Loop wo
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Run development server
-npm run dev
+bun run dev
 
 # Build for production
-npm run build
+bun run build
 ```
 
 ## Features
@@ -28,7 +28,7 @@ npm run build
 
 1. Build the project:
    ```bash
-   npm run build
+   bun run build
    ```
 
 2. The `dist/` folder can be deployed to GitHub Pages or any static host

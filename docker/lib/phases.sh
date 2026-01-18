@@ -3,8 +3,9 @@
 # Handles the review pipeline for 3-tier system
 
 # Source shared environment utilities
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/env.sh"
+# In Docker container, all files are at /app
+# Don't redefine SCRIPT_DIR - it's set by ralph.sh
+source /app/lib/env.sh
 
 # Helper: Apply auth mode for a role
 # Args: auth_mode, model (optional)

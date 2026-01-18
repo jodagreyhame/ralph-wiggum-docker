@@ -5,9 +5,9 @@
 
 set -euo pipefail
 
-# Source shared environment utilities
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/env.sh"
+# Source shared environment utilities from /app/lib
+# entrypoint.sh is at /entrypoint.sh, but lib/ is at /app/lib/
+source /app/lib/env.sh
 
 # If running as root, fix permissions then switch to claude user
 if [ "$(id -u)" = "0" ]; then
@@ -383,10 +383,10 @@ case "$CLI" in
 esac
 
 # Check if CLI config exists
-if [[ ! -f "/ralph/cli/${CLI_TYPE}.sh" ]]; then
+if [[ ! -f "/app/cli/${CLI_TYPE}.sh" ]]; then
     echo -e "${RED}ERROR: Unknown CLI: $CLI_TYPE${NC}"
     echo "Available CLIs:"
-    ls -1 /ralph/cli/*.sh 2>/dev/null | xargs -I{} basename {} .sh || echo "  (none)"
+    ls -1 /app/cli/*.sh 2>/dev/null | xargs -I{} basename {} .sh || echo "  (none)"
     exit 1
 fi
 

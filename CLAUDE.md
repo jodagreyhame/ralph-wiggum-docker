@@ -49,6 +49,9 @@ docker compose build
 # 3. Build CLI (optional, for project management)
 bun install && bun run build
 
+# 3b. Link globally (recommended)
+bun link
+
 # 4. Create a project
 ralph new my-project --preset=three-tier
 

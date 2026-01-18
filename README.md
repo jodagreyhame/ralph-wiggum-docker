@@ -78,11 +78,14 @@ docker compose build
 # 4. Assemble the Jedi Council (build CLI)
 bun install && bun run build
 
+# 4b. Link globally to use 'ralph' from anywhere (optional but recommended)
+bun link
+
 # 5. Begin your first mission
 ralph new my-project --preset=three-tier
 
 # 6. Punch it, Chewie!
-ralph run my-project
+ralph run my-project  # Works on Windows (PowerShell) and Unix (Bash)
 ```
 
 ---
@@ -153,6 +156,67 @@ docker compose build
 # Or build a specific starship
 docker compose build ralph
 ```
+
+### Building the Ralph CLI
+
+The Ralph CLI provides project management commands. Build and link it globally:
+
+```bash
+# Install dependencies and build
+bun install
+bun run build
+
+# Link globally (recommended)
+bun link
+
+# Now you can use 'ralph' from anywhere
+ralph --help
+ralph new my-project
+ralph run my-project
+```
+
+**To unlink:**
+```bash
+bun unlink ralph
+```
+
+**Alternative (without linking):** Run directly with bun during development:
+```bash
+bun run dev --help
+```
+
+### Setting Up Symlinks
+
+Each project creates a symlink `CLAUDE.md -> AGENTS.md` for compatibility:
+
+**Linux/Mac:**
+```bash
+# Automatic during project creation via CLI
+ralph new my-project
+
+# Manual setup (if needed)
+cd .projects/my-project
+ln -s AGENTS.md CLAUDE.md
+```
+
+**Windows (PowerShell as Administrator):**
+```powershell
+# Automatic during project creation via CLI
+ralph new my-project
+
+# Manual setup (if needed)
+cd .projects/my-project
+New-Item -ItemType SymbolicLink -Path CLAUDE.md -Target AGENTS.md
+```
+
+**Windows (without admin - using hard link):**
+```powershell
+# If you can't use symlinks
+cd .projects/my-project
+New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
+```
+
+**Why symlinks?** Claude Code looks for `CLAUDE.md`, but the canonical development rules are in `AGENTS.md`. The symlink ensures both tools work seamlessly.
 
 </details>
 
@@ -504,9 +568,9 @@ For more detailed troubleshooting, see [docs/TROUBLESHOOTING.md](docs/TROUBLESHO
 <details>
 <summary><b>Hyperdrive Controls</b></summary>
 
-**Recommended:** Use the CLI for simplicity:
+**Recommended:** Use the CLI for simplicity (cross-platform):
 ```bash
-ralph run my-project
+ralph run my-project  # Automatically uses PowerShell on Windows, Bash on Unix
 ```
 
 **Advanced:** Direct Docker control for manual configuration:
@@ -545,9 +609,10 @@ tail -f .projects/my-project/logs/current.readable
 
 ```
 ralph-wiggum-docker-loop/
-├── GOAL.md                       # Your mission orders
-├── AGENTS.md                     # The Jedi Code
-├── config.json                   # Holocron data
+├── README.md                     # This file
+├── CLAUDE.md                     # Project instructions
+├── docker-compose.yml            # Container orchestration
+├── env.template                  # Environment template
 ├── docker/                       # The Fleet
 │   ├── Dockerfile
 │   ├── ralph.sh                  # Hyperspace calculator
@@ -558,9 +623,17 @@ ralph-wiggum-docker-loop/
 │   ├── hero-jedi.png             # Light mode hero
 │   ├── hero-sith.png             # Dark mode hero
 │   └── icons/                    # Section icons
+├── scripts/                      # Launcher scripts
+│   ├── run.sh                    # Unix launcher
+│   └── run.ps1                   # Windows launcher
 └── .projects/                    # The Galaxy
     └── <project>/                # Each star system
+        ├── GOAL.md               # Your mission orders
+        ├── AGENTS.md             # The Jedi Code (canonical)
+        ├── CLAUDE.md -> AGENTS.md # Symlink for Claude Code
+        ├── config.json           # Holocron data
         ├── .project/
+        │   ├── prompts/          # Role prompts
         │   ├── state/            # Current coordinates
         │   ├── review/           # Council chambers
         │   └── architect/        # Senate records
