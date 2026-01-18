@@ -158,11 +158,31 @@ program
 
 // TUI command
 program
-  .command("tui")
+  .command("tui [project] [view]")
   .description("Launch interactive TUI mode")
-  .action(async () => {
-    const { launchTUI } = await import("../tui/index.js");
-    await launchTUI();
+  .option("--compact", "Start in compact view mode (default for projects list)")
+  .option("--expanded", "Start in expanded view mode")
+  .option("--full", "Start in full view mode (with live logs)")
+  .action(async (project, view, options) => {
+    const { launchTUIWithOptions } = await import("../tui/index.js");
+
+    // Determine initial screen based on arguments
+    let initialScreen: "projects-list" | "project-detail" | "config-editor" = "projects-list";
+
+    if (project) {
+      if (view === "config") {
+        // ralph tui <project> config -> config editor
+        initialScreen = "config-editor";
+      } else {
+        // ralph tui <project> -> project detail
+        initialScreen = "project-detail";
+      }
+    }
+
+    await launchTUIWithOptions({
+      initialScreen,
+      projectName: project,
+    });
   });
 
 // Parse arguments
