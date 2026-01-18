@@ -1,5 +1,8 @@
-# sync-public.ps1 - Sync private repo to public repo
-# Usage: .\scripts\sync-public.ps1 [-PublicRepo <path>] [-Push] [-Message "commit message"]
+# sync-public.ps1 - Mirror git commits from private repo to public repo
+# Usage: .\scripts\sync-public.ps1 [-PublicRepo <path>] [-Push] [-Branch <branch>]
+#
+# This script mirrors git commits exactly as they are in the source repo.
+# Filtering of sensitive files is handled by .gitignore differences between repos.
 #
 # The public repo path can be specified via:
 #   1. -PublicRepo parameter
@@ -8,8 +11,8 @@
 
 param(
     [string]$PublicRepo = $env:RALPH_PUBLIC_REPO,
-    [switch]$Push,
-    [string]$Message = "Sync from private repo"
+    [string]$Branch = "review/codebase-review",
+    [switch]$Push
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,105 +20,102 @@ $ErrorActionPreference = "Stop"
 # Validate PublicRepo parameter
 if (-not $PublicRepo) {
     Write-Host "ERROR: Public repository path not specified" -ForegroundColor Red
-    Write-Host "`nUsage: .\scripts\sync-public.ps1 -PublicRepo <path> [-Push] [-Message `"msg`"]" -ForegroundColor Yellow
+    Write-Host "`nUsage: .\scripts\sync-public.ps1 -PublicRepo <path> [-Branch <name>] [-Push]" -ForegroundColor Yellow
     Write-Host "   Or: Set RALPH_PUBLIC_REPO environment variable`n" -ForegroundColor Yellow
     exit 1
 }
 
-# Paths
-$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$ProjectRoot = Split-Path -Parent $ScriptRoot
-$Private = $ProjectRoot
-$Public = $PublicRepo
-
-# Directories to exclude (private stuff not in .gitignore)
-$ExcludeDirs = @(
-    ".git"
-    ".projects"
-    "node_modules"
-    "dist"
-    ".venv"
-    "venv"
-    "__pycache__"
-    ".idea"
-    ".vscode"
-    ".docker"
-    ".opencode"
-    "ai-docs"
-    ".repos"
-    "logs"
-)
-
-# Files to exclude
-$ExcludeFiles = @(
-    ".env"
-    ".env.local"
-    ".env.*.local"
-    "*.local.md"
-    "docker-compose.*.yml"
-)
-
-Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "  Syncing Private -> Public" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "From: $Private"
-Write-Host "To:   $Public`n"
-
-# Build robocopy exclude args
-$XD = $ExcludeDirs | ForEach-Object { $_ }
-$XF = $ExcludeFiles | ForEach-Object { $_ }
-
-# Sync with robocopy (mirror mode, excluding private stuff)
-Write-Host "Syncing files..." -ForegroundColor Yellow
-robocopy $Private $Public /MIR /XD $XD /XF $XF /NFL /NDL /NJH /NJS /NC /NS
-
-if ($LASTEXITCODE -gt 7) {
-    Write-Host "Robocopy failed with exit code $LASTEXITCODE" -ForegroundColor Red
+# Ensure we're in a git repo
+if (-not (Test-Path ".git")) {
+    Write-Host "ERROR: Must run from root of git repository" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "Files synced successfully!" -ForegroundColor Green
+# Get current repo info
+$PrivateRepo = (Get-Location).Path
+$CurrentBranch = git rev-parse --abbrev-ref HEAD 2>$null
 
-# Git operations in public repo
-Push-Location $Public
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: Failed to determine current branch" -ForegroundColor Red
+    exit 1
+}
 
-try {
-    # Initialize git if needed
-    if (-not (Test-Path ".git")) {
-        Write-Host "`nInitializing git repo..." -ForegroundColor Yellow
-        git init
-        git remote add origin https://github.com/jodagreyhame/ralph-wiggum-docker.git
-        git branch -M main
-    }
+Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host "  Git Commit Mirroring" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "From:   $PrivateRepo" -ForegroundColor White
+Write-Host "To:     $PublicRepo" -ForegroundColor White
+Write-Host "Branch: $Branch" -ForegroundColor White
+Write-Host ""
 
-    # Show status
-    Write-Host "`nGit status:" -ForegroundColor Yellow
-    git status --short
+# Ensure public repo exists and is initialized
+if (-not (Test-Path "$PublicRepo\.git")) {
+    Write-Host "ERROR: Public repo not initialized: $PublicRepo" -ForegroundColor Red
+    Write-Host "       Initialize it first with: git init" -ForegroundColor Yellow
+    exit 1
+}
 
-    # Stage and commit if there are changes
-    $changes = git status --porcelain
-    if ($changes) {
-        Write-Host "`nStaging changes..." -ForegroundColor Yellow
-        git add -A
+# Add public repo as a remote (if not already added)
+$remoteName = "public-mirror"
+$existingRemote = git remote get-url $remoteName 2>$null
 
-        Write-Host "Committing..." -ForegroundColor Yellow
-        git commit -m "$Message`n`nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Adding remote '$remoteName'..." -ForegroundColor Yellow
+    git remote add $remoteName $PublicRepo
+} else {
+    # Update remote URL in case it changed
+    git remote set-url $remoteName $PublicRepo
+}
 
-        if ($Push) {
-            Write-Host "`nPushing to origin..." -ForegroundColor Yellow
-            git push -u origin main
-            Write-Host "Pushed successfully!" -ForegroundColor Green
-        } else {
-            Write-Host "`nChanges committed locally. Run with -Push to push to GitHub." -ForegroundColor Cyan
+# Verify we have commits to push
+$commits = git log --oneline $Branch -5 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERROR: Branch '$Branch' not found" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Recent commits on $Branch:" -ForegroundColor Yellow
+git log --oneline --graph -5 $Branch
+
+# Push commits to public repo
+Write-Host "`nPushing commits to public repo..." -ForegroundColor Yellow
+
+if ($Push) {
+    # Force push to ensure exact mirror
+    git push $remoteName "${Branch}:${Branch}" --force
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Successfully pushed to public repo!" -ForegroundColor Green
+
+        # Show what's in the public repo now
+        Write-Host "`nPublic repo now has:" -ForegroundColor Cyan
+        Push-Location $PublicRepo
+        try {
+            git log --oneline --graph -5 $Branch 2>$null
+        } finally {
+            Pop-Location
         }
     } else {
-        Write-Host "`nNo changes to commit." -ForegroundColor Green
+        Write-Host "ERROR: Failed to push to public repo" -ForegroundColor Red
+        exit 1
+    }
+} else {
+    # Dry run - show what would be pushed
+    Write-Host "`nDry run mode. Would push:" -ForegroundColor Yellow
+    git log --oneline "${remoteName}/${Branch}..${Branch}" 2>$null
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "  (Public remote branch doesn't exist yet - would create it)" -ForegroundColor Gray
+        git log --oneline $Branch -5
     }
 
-    Write-Host "`n========================================" -ForegroundColor Cyan
-    Write-Host "  Sync complete!" -ForegroundColor Cyan
-    Write-Host "========================================`n" -ForegroundColor Cyan
-
-} finally {
-    Pop-Location
+    Write-Host "`nRun with -Push to actually push commits" -ForegroundColor Cyan
 }
+
+Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host "  Sync complete!" -ForegroundColor Cyan
+Write-Host "========================================`n" -ForegroundColor Cyan
+
+# Cleanup remote to avoid pollution
+Write-Host "Cleaning up temporary remote..." -ForegroundColor Gray
+git remote remove $remoteName 2>$null
