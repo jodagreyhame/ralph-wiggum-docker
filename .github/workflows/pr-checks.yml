@@ -52,7 +52,7 @@ jobs:
         run: bunx oxlint src
 
       - name: Check formatting
-        run: bunx oxfmt --check src
+        run: bun run format
 
   # Shell script validation (CRITICAL for bash-heavy project)
   shellcheck:
