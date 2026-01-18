@@ -1,4 +1,11 @@
-# run.ps1 - Launch Ralph Loop worker for a project
+# run.ps1 - Skill launcher for Ralph Loop projects (flag-driven, PowerShell)
+#
+# Purpose: Claude Code skill launcher with CLI flag support
+# Called by: Claude Code manage-project skill invocation
+# Features: -Background, -Unlimited, -AuthMode, -Iterations parameters
+#
+# Note: This launcher does NOT read config.json - it uses CLI parameters instead.
+#       For config-driven launching, use scripts/run.ps1
 #
 # Usage:
 #   .\.claude\skills\manage-project\scripts\run.ps1 <project-name>

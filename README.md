@@ -78,7 +78,7 @@ bun install && bun run build
 ralph new my-project --preset=three-tier
 
 # 6. Punch it, Chewie!
-RALPH_PROJECT_DIR=./.projects/my-project docker compose run --rm ralph
+ralph run my-project
 ```
 
 ---
@@ -500,6 +500,12 @@ For more detailed troubleshooting, see [docs/TROUBLESHOOTING.md](docs/TROUBLESHO
 <details>
 <summary><b>Hyperdrive Controls</b></summary>
 
+**Recommended:** Use the CLI for simplicity:
+```bash
+ralph run my-project
+```
+
+**Advanced:** Direct Docker control for manual configuration:
 ```bash
 # Construct the Star Destroyer
 docker compose build
