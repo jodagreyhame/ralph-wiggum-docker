@@ -211,11 +211,11 @@ jobs:
           fi
 
           # Create the new entry (summary only - just PR title)
-          cat > /tmp/new_section.md << EOF
-## [$NEW_VERSION] - $TODAY
-
-$(cat /tmp/changelog_summary.md)
-EOF
+          {
+            echo "## [$NEW_VERSION] - $TODAY"
+            echo ""
+            cat /tmp/changelog_summary.md
+          } > /tmp/new_section.md
 
           # Insert new section after line 7
           {
@@ -260,11 +260,11 @@ EOF
           fi
 
           # Create the new detailed entry
-          cat > /tmp/new_detailed_section.md << EOF
-## [$NEW_VERSION] - $TODAY
-
-$(cat /tmp/changelog_detailed.md)
-EOF
+          {
+            echo "## [$NEW_VERSION] - $TODAY"
+            echo ""
+            cat /tmp/changelog_detailed.md
+          } > /tmp/new_detailed_section.md
 
           # Insert after header (line 6)
           {
