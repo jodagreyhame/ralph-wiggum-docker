@@ -19,8 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Don't use --frozen-lockfile for Dependabot PRs (they update package.json but not bun.lock)
-          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+          # Don't use --frozen-lockfile for Dependabot or auto-release (they update package.json but not bun.lock)
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]] || [[ "${{ github.actor }}" == "github-actions[bot]" ]]; then
             bun install
           else
             bun install --frozen-lockfile
@@ -41,8 +41,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Don't use --frozen-lockfile for Dependabot PRs (they update package.json but not bun.lock)
-          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+          # Don't use --frozen-lockfile for Dependabot or auto-release (they update package.json but not bun.lock)
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]] || [[ "${{ github.actor }}" == "github-actions[bot]" ]]; then
             bun install
           else
             bun install --frozen-lockfile
