@@ -5,6 +5,17 @@ Full changelog with categorized changes from all commits.
 For a summary, see [CHANGELOG.md](../CHANGELOG.md).
 
 
+## [0.1.5] - 2026-01-18
+
+### Fixed
+- Remove remaining heredocs from workflow
+- Fix YAML syntax in heredocs
+- Rewrite auto-release to run on PRs
+
+### Documentation
+- Add release workflow with manual version control
+
+
 ## [0.1.4] - 2026-01-18
 
 ### Fixed
@@ -80,3 +91,4 @@ Initial release.
 [0.1.1]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/jodagreyhame/ralph-wiggum-docker/releases/tag/v0.1.0
 [0.1.4]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.3...v0.1.4
+[0.1.5]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.4...v0.1.5
