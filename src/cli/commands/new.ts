@@ -126,6 +126,9 @@ function applyOptions(config: ProjectConfig, options: NewCommandOptions): Projec
     if (options.reviewerModel) {
         config.reviewer.model = options.reviewerModel;
     }
+    if (options.reviewerSession) {
+        config.reviewer.session_mode = options.reviewerSession as SessionMode;
+    }
 
     // Architect
     config.architect.enabled = parseBoolean(options.architectEnabled, options.noArchitect, config.architect.enabled);

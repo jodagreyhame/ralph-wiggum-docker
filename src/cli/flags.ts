@@ -23,6 +23,7 @@ export interface NewCommandOptions {
     reviewerBackend?: Backend;
     reviewerAuth?: AuthMode;
     reviewerModel?: string;
+    reviewerSession?: SessionMode;
 
     // Architect
     architectEnabled?: boolean;

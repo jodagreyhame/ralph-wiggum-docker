@@ -80,6 +80,7 @@ program
     .option('--reviewer-backend <backend>', 'Reviewer backend')
     .option('--reviewer-auth <auth>', 'Reviewer auth mode')
     .option('--reviewer-model <model>', 'Reviewer model override')
+    .option('--reviewer-session <mode>', 'Reviewer session mode (fresh, resume)')
     // Architect options
     .option('--architect-enabled', 'Enable architect')
     .option('--no-architect', 'Disable architect')
