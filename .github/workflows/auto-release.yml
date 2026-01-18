@@ -287,53 +287,57 @@ jobs:
             echo "[$NEW_VERSION]: https://github.com/${{ github.repository }}/compare/v${PREV_VERSION}...v${NEW_VERSION}" >> docs/CHANGELOG-DETAILED.md
           fi
 
-      - name: Commit version bump to main
+      - name: Create release PR
         if: steps.check.outputs.should_release == 'true'
-        id: commit
+        id: release_pr
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
+          BRANCH_NAME="release/v${NEW_VERSION}"
 
           # Check if there are changes to commit
           if git diff --quiet package.json CHANGELOG.md docs/CHANGELOG-DETAILED.md 2>/dev/null; then
             echo "No changes to commit"
-            echo "committed=false" >> $GITHUB_OUTPUT
+            echo "pr_created=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
+          # Create release branch
+          git checkout -b "$BRANCH_NAME"
+
+          # Commit changes
           git add package.json CHANGELOG.md docs/CHANGELOG-DETAILED.md
-          git commit -m "chore(release): bump to v${NEW_VERSION} [skip ci]"
-          git push origin main
-          echo "committed=true" >> $GITHUB_OUTPUT
+          git commit -m "chore(release): bump to v${NEW_VERSION}"
 
-      - name: Create tag and release
-        if: steps.check.outputs.should_release == 'true'
-        run: |
-          NEW_VERSION="${{ steps.version.outputs.new }}"
+          # Push branch
+          git push origin "$BRANCH_NAME"
 
-          # Check if tag already exists
-          if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
-            echo "Tag v${NEW_VERSION} already exists"
-            exit 0
-          fi
+          # Create PR
+          PR_URL=$(gh pr create \
+            --title "chore(release): v${NEW_VERSION}" \
+            --body "## Release v${NEW_VERSION}
 
-          # If we committed, we need to tag the commit we just pushed
-          # Otherwise tag the current HEAD (merge commit)
-          git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
-          git push origin "v${NEW_VERSION}"
-          echo "✓ Created tag v${NEW_VERSION}"
+          Automated release PR created by the auto-release workflow.
 
-      - name: Create GitHub Release
-        if: steps.check.outputs.should_release == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.version.outputs.new }}
-          name: v${{ steps.version.outputs.new }}
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          ### Changes
+          - Version bumped to ${NEW_VERSION}
+          - Changelog updated
 
-      - name: Add comment to PR
-        if: steps.check.outputs.should_release == 'true'
+          ### After Merge
+          A tag will be created and GitHub Release published automatically.
+
+          ---
+          *This PR was automatically created by the release workflow.*" \
+            --base main \
+            --head "$BRANCH_NAME")
+
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+          echo "✓ Created release PR: $PR_URL"
+
+      - name: Add comment to triggering PR
+        if: steps.check.outputs.should_release == 'true' && steps.release_pr.outputs.pr_created == 'true'
         uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.RELEASE_TOKEN }}
@@ -342,5 +346,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🎉 **Released v${{ steps.version.outputs.new }}**\n\nVersion bumped and tagged on main branch.\n\n[View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.new }})`
+              body: `🚀 **Release PR Created**\n\nA release PR for v${{ steps.version.outputs.new }} has been created.\n\n[View Release PR](${{ steps.release_pr.outputs.pr_url }})\n\nOnce merged, the tag and GitHub Release will be created automatically.`
             })
