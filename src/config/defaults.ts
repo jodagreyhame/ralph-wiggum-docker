@@ -5,16 +5,16 @@
  * This file provides fallback values if template cannot be loaded.
  */
 
-import type { ProjectConfig, PromptsConfig } from './schema.js';
-import { loadTemplateConfig } from '../utils/template.js';
+import type { ProjectConfig, PromptsConfig } from "./schema.js";
+import { loadTemplateConfig } from "../utils/template.js";
 
 // Prompts config (rarely changes)
 export const DEFAULT_PROMPTS: PromptsConfig = {
-    dir: '.project/prompts',
-    goal: 'GOAL.md',
-    builder: 'BUILDER.md',
-    reviewer: 'REVIEWER.md',
-    architect: 'ARCHITECT.md',
+  dir: ".project/prompts",
+  goal: "GOAL.md",
+  builder: "BUILDER.md",
+  reviewer: "REVIEWER.md",
+  architect: "ARCHITECT.md",
 };
 
 /**
@@ -22,49 +22,49 @@ export const DEFAULT_PROMPTS: PromptsConfig = {
  * Loads from template/config.json if available, otherwise uses minimal fallback.
  */
 export function createDefaultConfig(name: string): ProjectConfig {
-    // Try to load from template first (canonical source)
-    const templateConfig = loadTemplateConfig();
+  // Try to load from template first (canonical source)
+  const templateConfig = loadTemplateConfig();
 
-    if (templateConfig) {
-        return {
-            ...templateConfig,
-            name,
-            description: '',
-        };
-    }
-
-    // Fallback if template not available (shouldn't happen in normal usage)
+  if (templateConfig) {
     return {
-        name,
-        description: '',
-        version: '0.1.0',
-        prompts: { ...DEFAULT_PROMPTS },
-        builder: {
-            backend: 'claude',
-            auth_mode: 'anthropic-oauth',
-            model: null,
-            session_mode: 'fresh',
-        },
-        reviewer: {
-            enabled: false,
-            backend: 'claude',
-            auth_mode: 'anthropic-oauth',
-            model: null,
-            session_mode: 'fresh',
-        },
-        architect: {
-            enabled: false,
-            backend: 'gemini',
-            auth_mode: 'gemini-oauth',
-            model: null,
-            session_mode: 'resume',
-        },
-        escalation: {
-            enabled: false,
-            max_builder_failures: 3,
-        },
-        max_iterations: 0,
-        completion_enabled: true,
-        knowledge_dir: '.project',
+      ...templateConfig,
+      name,
+      description: "",
     };
+  }
+
+  // Fallback if template not available (shouldn't happen in normal usage)
+  return {
+    name,
+    description: "",
+    version: "0.1.0",
+    prompts: { ...DEFAULT_PROMPTS },
+    builder: {
+      backend: "claude",
+      auth_mode: "anthropic-oauth",
+      model: null,
+      session_mode: "fresh",
+    },
+    reviewer: {
+      enabled: false,
+      backend: "claude",
+      auth_mode: "anthropic-oauth",
+      model: null,
+      session_mode: "fresh",
+    },
+    architect: {
+      enabled: false,
+      backend: "gemini",
+      auth_mode: "gemini-oauth",
+      model: null,
+      session_mode: "resume",
+    },
+    escalation: {
+      enabled: false,
+      max_builder_failures: 3,
+    },
+    max_iterations: 0,
+    completion_enabled: true,
+    knowledge_dir: ".project",
+  };
 }
