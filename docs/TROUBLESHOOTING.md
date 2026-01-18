@@ -27,7 +27,7 @@ claude --version
 
 ```bash
 # Install via npm
-npm install -g @anthropic-ai/gemini-cli
+npm install -g @google/gemini-cli
 ```
 
 **Authenticate:**

@@ -430,7 +430,8 @@ $env:RALPH_PROJECT_DIR="./.projects/project-b"; docker compose run --rm ralph
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `RALPH_CLI` | `claude` | Builder CLI backend |
+| `RALPH_BUILDER_BACKEND` | `claude` | Builder CLI backend |
+| `RALPH_BUILDER_MODEL` | (none) | Builder model override |
 | `RALPH_MODEL` | (none) | Model override (opus, sonnet, haiku) |
 | `RALPH_SESSION_MODE` | `fresh` | Session mode |
 
@@ -441,6 +442,7 @@ $env:RALPH_PROJECT_DIR="./.projects/project-b"; docker compose run --rm ralph
 | `RALPH_REVIEWER_ENABLED` | `false` | Enable reviewer |
 | `RALPH_REVIEWER_BACKEND` | `claude` | Reviewer CLI |
 | `RALPH_REVIEWER_AUTH_MODE` | `anthropic-oauth` | Reviewer auth |
+| `RALPH_REVIEWER_MODEL` | (none) | Reviewer model override |
 | `RALPH_REVIEWER_SESSION_MODE` | `fresh` | Session mode |
 
 ### Architect
@@ -450,6 +452,7 @@ $env:RALPH_PROJECT_DIR="./.projects/project-b"; docker compose run --rm ralph
 | `RALPH_ARCHITECT_ENABLED` | `false` | Enable architect |
 | `RALPH_ARCHITECT_BACKEND` | `gemini` | Architect CLI |
 | `RALPH_ARCHITECT_AUTH_MODE` | `gemini-oauth` | Architect auth |
+| `RALPH_ARCHITECT_MODEL` | (none) | Architect model override |
 | `RALPH_ARCHITECT_SESSION_MODE` | `resume` | Session mode |
 
 ### Escalation

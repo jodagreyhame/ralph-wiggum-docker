@@ -76,6 +76,7 @@ ralph new --interactive
 | `--reviewer-backend <backend>` | Reviewer backend |
 | `--reviewer-auth <auth>` | Reviewer auth mode |
 | `--reviewer-model <model>` | Reviewer model override |
+| `--reviewer-session <mode>` | Session mode (fresh, resume) |
 
 **Architect Options:**
 
