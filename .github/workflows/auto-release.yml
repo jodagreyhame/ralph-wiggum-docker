@@ -30,24 +30,36 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Get previous release tag
+        id: prev_tag
+        run: |
+          # Get the latest tag (previous release)
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            # No tags yet, use first commit
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous release: $PREV_TAG"
+
       - name: Check for release-worthy commits
         id: check
         env:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
         run: |
-          # Get the merge commit
-          MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
+          # Get commits since last release on main
+          COMMITS=$(git log --pretty=format:"%s" --no-merges ${{ steps.prev_tag.outputs.tag }}..HEAD)
 
-          # Get commits from the merged PR
-          COMMITS=$(git log --pretty=format:"%s" --no-merges $MERGE_COMMIT^2 ^$MERGE_COMMIT^1)
+          # Filter to commits from this PR number
+          PR_NUMBER="${{ github.event.pull_request.number }}"
 
           if [ -z "$COMMITS" ]; then
-            echo "No commits in merged PR"
+            echo "No new commits since last release"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "Commits in merged PR:"
+          echo "Commits since last release:"
           echo "$COMMITS"
 
           # Check for release-worthy commits (feat, fix, docs, refactor, perf)
@@ -134,15 +146,14 @@ jobs:
           NEW_VERSION="${{ steps.version.outputs.new }}"
           TODAY=$(date +%Y-%m-%d)
           PR_TITLE="${{ github.event.pull_request.title }}"
-          MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
 
           mkdir -p docs
 
-          # Generate DETAILED changelog from PR commits (for docs/)
+          # Generate DETAILED changelog from commits since last release
           > /tmp/changelog_detailed.md
 
-          # Get commits from merged PR
-          COMMITS=$(git log --pretty=format:"%s" --no-merges $MERGE_COMMIT^2 ^$MERGE_COMMIT^1)
+          # Get commits since last release on main
+          COMMITS=$(git log --pretty=format:"%s" --no-merges ${{ steps.prev_tag.outputs.tag }}..HEAD)
 
           # Added (feat)
           ADDED=$(echo "$COMMITS" | grep -iE "^feat(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
@@ -270,20 +281,23 @@ jobs:
 
       - name: Commit version bump to main
         if: steps.check.outputs.should_release == 'true'
+        id: commit
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
 
           # Check if there are changes to commit
           if git diff --quiet package.json CHANGELOG.md docs/CHANGELOG-DETAILED.md 2>/dev/null; then
             echo "No changes to commit"
+            echo "committed=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           git add package.json CHANGELOG.md docs/CHANGELOG-DETAILED.md
           git commit -m "chore(release): bump to v${NEW_VERSION} [skip ci]"
           git push origin main
+          echo "committed=true" >> $GITHUB_OUTPUT
 
-      - name: Create tag
+      - name: Create tag and release
         if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
@@ -294,8 +308,11 @@ jobs:
             exit 0
           fi
 
+          # If we committed, we need to tag the commit we just pushed
+          # Otherwise tag the current HEAD (merge commit)
           git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
           git push origin "v${NEW_VERSION}"
+          echo "✓ Created tag v${NEW_VERSION}"
 
       - name: Create GitHub Release
         if: steps.check.outputs.should_release == 'true'
