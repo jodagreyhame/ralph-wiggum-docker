@@ -5,6 +5,12 @@ Full changelog with categorized changes from all commits.
 For a summary, see [CHANGELOG.md](../CHANGELOG.md).
 
 
+## [0.1.8] - 2026-01-18
+
+### Fixed
+- Remove oxlint type-aware flag and fix shellcheck warnings
+
+
 ## [0.1.7] - 2026-01-18
 
 ### Fixed
@@ -107,3 +113,4 @@ Initial release.
 [0.1.5]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.4...v0.1.5
 [0.1.6]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.5...v0.1.6
 [0.1.7]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.6...v0.1.7
+[0.1.8]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.7...v0.1.8
