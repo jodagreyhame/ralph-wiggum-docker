@@ -1,33 +1,27 @@
 name: Auto Release
 
-# Runs on PRs targeting main - updates version and changelog IN the PR
-# When merged, main already has the updates, then we tag and release
+# Runs when PR is merged to main
+# Bumps version, updates changelog, creates tag and GitHub release
 
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, closed]
+    types: [closed]
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  prepare-release:
+  release:
     runs-on: ubuntu-latest
-    # Only run when PR is opened/reopened, not on every push (synchronize)
-    if: |
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.event.action == 'opened' || github.event.action == 'reopened')
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-      bump_type: ${{ steps.check.outputs.bump_type }}
-      new_version: ${{ steps.version.outputs.new }}
+    # Only run when PR is merged (not just closed)
+    if: github.event.pull_request.merged == true
     steps:
-      - name: Checkout PR branch
+      - name: Checkout main branch
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          ref: main
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -41,19 +35,22 @@ jobs:
         env:
           PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
         run: |
-          # Get commits in this PR (compare to main)
-          COMMITS=$(git log origin/main..HEAD --pretty=format:"%s" --no-merges)
+          # Get the merge commit
+          MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
+
+          # Get commits from the merged PR
+          COMMITS=$(git log --pretty=format:"%s" --no-merges $MERGE_COMMIT^2 ^$MERGE_COMMIT^1)
 
           if [ -z "$COMMITS" ]; then
-            echo "No commits in PR"
+            echo "No commits in merged PR"
             echo "should_release=false" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "Commits in PR:"
+          echo "Commits in merged PR:"
           echo "$COMMITS"
 
-          # Check for release-worthy commits (any of: feat, fix, docs, refactor, perf)
+          # Check for release-worthy commits (feat, fix, docs, refactor, perf)
           if ! echo "$COMMITS" | grep -qE "^(feat|fix|docs|refactor|perf)(\(.+\))?:"; then
             echo "No release-worthy commits (only chore/ci/test/build)"
             echo "should_release=false" >> $GITHUB_OUTPUT
@@ -123,22 +120,8 @@ jobs:
           echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "Calculated: $CURRENT -> $NEW_VERSION ($BUMP)"
 
-      - name: Check if version already updated
-        if: steps.check.outputs.should_release == 'true'
-        id: skip
-        run: |
-          CURRENT=$(jq -r '.version' package.json)
-          NEW="${{ steps.version.outputs.new }}"
-
-          if [ "$CURRENT" == "$NEW" ]; then
-            echo "Version already at $NEW, skipping update"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Update package.json
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+        if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           jq --arg v "$NEW_VERSION" '.version = $v' package.json > package.json.tmp
@@ -146,19 +129,23 @@ jobs:
           echo "Updated package.json to $NEW_VERSION"
 
       - name: Generate changelog entries
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+        if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           TODAY=$(date +%Y-%m-%d)
           PR_TITLE="${{ github.event.pull_request.title }}"
+          MERGE_COMMIT="${{ github.event.pull_request.merge_commit_sha }}"
 
           mkdir -p docs
 
           # Generate DETAILED changelog from PR commits (for docs/)
           > /tmp/changelog_detailed.md
 
+          # Get commits from merged PR
+          COMMITS=$(git log --pretty=format:"%s" --no-merges $MERGE_COMMIT^2 ^$MERGE_COMMIT^1)
+
           # Added (feat)
-          ADDED=$(git log origin/main..HEAD --pretty=format:"%s" --no-merges | grep -iE "^feat(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
+          ADDED=$(echo "$COMMITS" | grep -iE "^feat(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
           if [ -n "$ADDED" ]; then
             echo "### Added" >> /tmp/changelog_detailed.md
             echo "$ADDED" >> /tmp/changelog_detailed.md
@@ -166,7 +153,7 @@ jobs:
           fi
 
           # Changed (refactor, perf)
-          CHANGED=$(git log origin/main..HEAD --pretty=format:"%s" --no-merges | grep -iE "^(refactor|perf)(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
+          CHANGED=$(echo "$COMMITS" | grep -iE "^(refactor|perf)(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
           if [ -n "$CHANGED" ]; then
             echo "### Changed" >> /tmp/changelog_detailed.md
             echo "$CHANGED" >> /tmp/changelog_detailed.md
@@ -174,7 +161,7 @@ jobs:
           fi
 
           # Fixed
-          FIXED=$(git log origin/main..HEAD --pretty=format:"%s" --no-merges | grep -iE "^fix(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
+          FIXED=$(echo "$COMMITS" | grep -iE "^fix(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
           if [ -n "$FIXED" ]; then
             echo "### Fixed" >> /tmp/changelog_detailed.md
             echo "$FIXED" >> /tmp/changelog_detailed.md
@@ -182,7 +169,7 @@ jobs:
           fi
 
           # Docs
-          DOCS=$(git log origin/main..HEAD --pretty=format:"%s" --no-merges | grep -iE "^docs(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
+          DOCS=$(echo "$COMMITS" | grep -iE "^docs(\(.+\))?:" | sed 's/^[^:]*: /- /' || true)
           if [ -n "$DOCS" ]; then
             echo "### Documentation" >> /tmp/changelog_detailed.md
             echo "$DOCS" >> /tmp/changelog_detailed.md
@@ -200,7 +187,7 @@ jobs:
           cat /tmp/changelog_summary.md
 
       - name: Update CHANGELOG.md (summary)
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+        if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           PREV_VERSION="${{ steps.current.outputs.version }}"
@@ -235,7 +222,7 @@ jobs:
           fi
 
       - name: Update docs/CHANGELOG-DETAILED.md
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+        if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
           PREV_VERSION="${{ steps.current.outputs.version }}"
@@ -281,8 +268,8 @@ jobs:
             echo "[$NEW_VERSION]: https://github.com/${{ github.repository }}/compare/v${PREV_VERSION}...v${NEW_VERSION}" >> docs/CHANGELOG-DETAILED.md
           fi
 
-      - name: Commit and push version update
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+      - name: Commit version bump to main
+        if: steps.check.outputs.should_release == 'true'
         run: |
           NEW_VERSION="${{ steps.version.outputs.new }}"
 
@@ -294,10 +281,34 @@ jobs:
 
           git add package.json CHANGELOG.md docs/CHANGELOG-DETAILED.md
           git commit -m "chore(release): bump to v${NEW_VERSION} [skip ci]"
-          git push origin HEAD:${{ github.head_ref }}
+          git push origin main
 
-      - name: Add PR comment
-        if: steps.check.outputs.should_release == 'true' && steps.skip.outputs.skip != 'true'
+      - name: Create tag
+        if: steps.check.outputs.should_release == 'true'
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new }}"
+
+          # Check if tag already exists
+          if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${NEW_VERSION} already exists"
+            exit 0
+          fi
+
+          git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
+          git push origin "v${NEW_VERSION}"
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.new }}
+          name: v${{ steps.version.outputs.new }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add comment to PR
+        if: steps.check.outputs.should_release == 'true'
         uses: actions/github-script@v8
         with:
           script: |
@@ -305,49 +316,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 **Release Prepared**\n\nVersion bumped to **v${{ steps.version.outputs.new }}** (${{ steps.check.outputs.bump_type }})\n\nWhen this PR is merged, a GitHub Release will be created automatically.`
+              body: `🎉 **Released v${{ steps.version.outputs.new }}**\n\nVersion bumped and tagged on main branch.\n\n[View Release](https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.new }})`
             })
-
-  # After merge, create the tag and release
-  create-release:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Get version from package.json
-        id: version
-        run: |
-          VERSION=$(jq -r '.version' package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Check if tag exists
-        id: tag_check
-        run: |
-          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
-            echo "Tag already exists"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create tag
-        if: steps.tag_check.outputs.exists != 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
-
-      - name: Create GitHub Release
-        if: steps.tag_check.outputs.exists != 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
-          name: v${{ steps.version.outputs.version }}
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
