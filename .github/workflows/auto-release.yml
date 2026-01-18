@@ -243,14 +243,12 @@ jobs:
 
           # Create docs/CHANGELOG-DETAILED.md if it doesn't exist
           if [ ! -f docs/CHANGELOG-DETAILED.md ]; then
-            cat > docs/CHANGELOG-DETAILED.md << 'EOF'
-# Detailed Changelog
-
-Full changelog with categorized changes from all commits.
-
-For a summary, see [CHANGELOG.md](../CHANGELOG.md).
-
-EOF
+            echo "# Detailed Changelog" > docs/CHANGELOG-DETAILED.md
+            echo "" >> docs/CHANGELOG-DETAILED.md
+            echo "Full changelog with categorized changes from all commits." >> docs/CHANGELOG-DETAILED.md
+            echo "" >> docs/CHANGELOG-DETAILED.md
+            echo "For a summary, see [CHANGELOG.md](../CHANGELOG.md)." >> docs/CHANGELOG-DETAILED.md
+            echo "" >> docs/CHANGELOG-DETAILED.md
           fi
 
           # Check if this version already in detailed changelog
