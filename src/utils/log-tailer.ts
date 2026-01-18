@@ -15,10 +15,42 @@ export interface TailResult {
 
 /**
  * Get the path to the formatted log file (logs/current.readable)
+ * Falls back to latest iteration's output.readable if symlink is unreadable (Windows)
  */
-export function getLogPath(projectName: string): string {
+export function getLogPath(projectName: string): string | null {
   const projectDir = getProjectDir(projectName);
-  return path.join(projectDir, "logs", "current.readable");
+  const symlinkPath = path.join(projectDir, "logs", "current.readable");
+
+  // Try symlink first
+  if (fs.existsSync(symlinkPath)) {
+    try {
+      // Check if we can actually read it (Windows symlink issue)
+      fs.accessSync(symlinkPath, fs.constants.R_OK);
+      return symlinkPath;
+    } catch {
+      // Symlink exists but unreadable (Windows) - fall through
+    }
+  }
+
+  // Fallback: find latest iteration's output.readable
+  const logsDir = path.join(projectDir, "logs");
+  if (!fs.existsSync(logsDir)) return null;
+
+  try {
+    const iterations = fs.readdirSync(logsDir)
+      .filter((d) => d.startsWith("iteration_"))
+      .sort()
+      .reverse();
+
+    for (const iterDir of iterations) {
+      const readablePath = path.join(logsDir, iterDir, "output.readable");
+      if (fs.existsSync(readablePath)) return readablePath;
+    }
+  } catch {
+    // Ignore directory read errors
+  }
+
+  return null;
 }
 
 /**
@@ -36,7 +68,7 @@ export function getIterationLogPath(projectName: string, iteration: number): str
 export function initializeLogBuffer(projectName: string, maxLines: number = 100): string[] {
   const logPath = getLogPath(projectName);
 
-  if (!fs.existsSync(logPath)) {
+  if (!logPath || !fs.existsSync(logPath)) {
     return [];
   }
 
@@ -61,7 +93,7 @@ export function initializeLogBuffer(projectName: string, maxLines: number = 100)
 export function tailLogFile(projectName: string, lastPosition: number): TailResult {
   const logPath = getLogPath(projectName);
 
-  if (!fs.existsSync(logPath)) {
+  if (!logPath || !fs.existsSync(logPath)) {
     return { lines: [], position: 0, eof: true };
   }
 

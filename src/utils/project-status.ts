@@ -92,6 +92,75 @@ function loadSummaryData(projectDir: string): SummaryData | null {
 }
 
 /**
+ * Calculate actual task progress from phase files
+ * This is more accurate than summary.json which may have stale data
+ */
+function calculateTaskProgress(
+  projectDir: string,
+  summaryData: SummaryData | null,
+): ProjectInfo["taskProgress"] | undefined {
+  const specsDir = path.join(projectDir, ".project", "specs", "tasks");
+
+  try {
+    const files = fs
+      .readdirSync(specsDir)
+      .filter((f) => f.startsWith("phase-") && f.endsWith(".json"))
+      .sort();
+
+    if (files.length === 0) {
+      // No phase files, fall back to summary.json
+      if (summaryData) {
+        return {
+          completed: summaryData.completed_tasks,
+          total: summaryData.total_tasks,
+          currentPhase: summaryData.current_phase,
+        };
+      }
+      return undefined;
+    }
+
+    let totalTasks = 0;
+    let completedTasks = 0;
+    let currentPhase = summaryData?.current_phase || "unknown";
+
+    for (const file of files) {
+      try {
+        const content = fs.readFileSync(path.join(specsDir, file), "utf-8");
+        const phase = JSON.parse(content);
+        if (phase.tasks && Array.isArray(phase.tasks)) {
+          totalTasks += phase.tasks.length;
+          completedTasks += phase.tasks.filter(
+            (t: { status?: string }) => t.status === "completed",
+          ).length;
+        }
+      } catch {
+        // Skip invalid phase files
+      }
+    }
+
+    if (totalTasks === 0) {
+      return undefined;
+    }
+
+    return {
+      completed: completedTasks,
+      total: totalTasks,
+      currentPhase,
+    };
+  } catch {
+    // Fall back to summary.json if we can't read phase files
+    if (summaryData) {
+      return {
+        completed: summaryData.completed_tasks,
+        total: summaryData.total_tasks,
+        currentPhase: summaryData.current_phase,
+      };
+    }
+    return undefined;
+  }
+}
+
+/**
  * Get the latest log timestamp from logs directory
  */
 function getLatestLogTimestamp(projectDir: string): Date | null {
@@ -203,15 +272,8 @@ export function loadProjectStatus(projectName: string): ProjectInfo | null {
   // Determine status
   const status = determineProjectStatus(statusData, completionData);
 
-  // Build task progress from summary
-  let taskProgress: ProjectInfo["taskProgress"] | undefined;
-  if (summaryData) {
-    taskProgress = {
-      completed: summaryData.completed_tasks,
-      total: summaryData.total_tasks,
-      currentPhase: summaryData.current_phase,
-    };
-  }
+  // Build task progress from actual phase files (more accurate than summary.json)
+  const taskProgress = calculateTaskProgress(projectDir, summaryData);
 
   // Extract provider/model from status or config
   const provider = statusData?.cli || config.builder.backend || null;
