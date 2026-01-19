@@ -580,3 +580,53 @@ Object format allows the same backend with different auth modes (e.g., GLM → C
 | `RALPH_PROJECT_NAME` | `PROJECT` | Project name for logs |
 | `RALPH_READABLE_OUTPUT` | `true` | Filter output for readability |
 | `RALPH_SHOW_THINKING` | `true` | Show thinking blocks (requires thinking model) |
+
+### Self-Healing Loops
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `RALPH_REVIEWER_RETRY_MAX` | `3` | Max retries when reviewer doesn't write decision |
+| `RALPH_ARCHITECT_RETRY_MAX` | `3` | Max retries when architect doesn't write decision |
+| `RALPH_VALIDATION_ENABLED` | `false` | Enable task format validation loop |
+| `RALPH_VALIDATION_MAX_ATTEMPTS` | `5` | Max validation attempts |
+| `RALPH_VERIFY_ENABLED` | `false` | Enable build/test verification after completion |
+| `RALPH_VERIFY_AGENT_MAX` | `3` | Max verification attempts |
+| `RALPH_ENABLE_REMEDIATION` | `false` | Enable auto-remediation for blocked verification |
+| `RALPH_REMEDIATE_MAX` | `2` | Max remediation attempts |
+
+## Self-Healing Loops
+
+The system includes several self-healing mechanisms that automatically retry on failures:
+
+### Pre-flight Validation
+Before the main loop starts, validates:
+- Builder prompt file exists
+- Reviewer/architect prompts exist (if enabled)
+- CLI backend scripts exist
+- Auth credentials accessible (warning only)
+
+### Reviewer/Architect Decision Retry
+When reviewer or architect doesn't write a `decision.txt` file:
+1. Retries the same agent with `--continue` flag
+2. Prompts agent to write the required decision file
+3. After `RALPH_REVIEWER_RETRY_MAX` (default 3) attempts, treats as FAIL
+4. Escalation system kicks in if configured
+
+### Validation Loop (Task Mode)
+When `RALPH_VALIDATION_ENABLED=true` and task specs exist:
+- Validates task specifications format in `.project/tasks/`
+- Retries with `--continue` until `<promise>VALIDATED</promise>`
+- Fails after `RALPH_VALIDATION_MAX_ATTEMPTS`
+
+### Verify Loop
+When `RALPH_VERIFY_ENABLED=true`:
+- Runs build/test verification after builder completion
+- Agent responds with `<verify>PASS</verify>`, `<verify>FAIL</verify>`, or `<verify>BLOCKED</verify>`
+- Retries on FAIL up to `RALPH_VERIFY_AGENT_MAX` times
+
+### Remediation Loop
+When `RALPH_ENABLE_REMEDIATION=true` and verify returns BLOCKED:
+- Agent attempts to fix environment (install tools, dependencies)
+- Responds with `<remediate>DONE</remediate>` or `<remediate>BLOCKED</remediate>`
+- After fix, retries verification
+- Fails after `RALPH_REMEDIATE_MAX` attempts

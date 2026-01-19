@@ -1,26 +1,58 @@
 # Ralph Loop Docker Tests
 
-Automated test suite for validating Docker configurations and auth modes.
+Test suites organized by category. Each suite has its own runner.
+
+## Test Suites
+
+| Suite | Runner | Purpose | Docker |
+|-------|--------|---------|--------|
+| **Docker/Auth** | `test-all.sh` | Docker builds, auth modes, agent connections | Yes |
+| **CLI** | `cli/test-cli.sh` | Ralph CLI commands | No |
+| **Self-Healing (Unit)** | `self-healing/run-all.sh` | Retry loops, validation, verification | No |
+| **Self-Healing (E2E)** | `self-healing/e2e/test-self-healing-e2e.sh` | Real agent behavior + provider tests | Yes |
+
+## Quick Start
+
+```bash
+# Docker & auth integration tests (requires Docker + credentials)
+./test/test-all.sh
+
+# CLI command tests (no Docker required)
+bash -c 'source test/cli/test-cli.sh'
+
+# Self-healing unit tests (no Docker required)
+bash -c 'source test/self-healing/run-all.sh'
+
+# Self-healing E2E tests (requires Docker + credentials)
+./test/self-healing/e2e/test-self-healing-e2e.sh
+```
 
 ## Structure
 
 ```
 test/
-├── test-all.sh              # Main runner (Bash)
-├── test-all.ps1             # Main runner (PowerShell)
 ├── README.md                # This file
-├── lib/                     # Shared libraries
+├── test-all.sh              # Docker/auth integration tests (Bash)
+├── test-all.ps1             # Docker/auth integration tests (PowerShell)
+├── lib/                     # Shared libraries for Docker tests
 │   ├── common.sh            # Colors, pass/fail, infrastructure tests
 │   └── project.sh           # Test project creation/management
 ├── cli/                     # CLI command tests
 │   ├── test-cli.ps1         # Tests all ralph CLI commands (PowerShell)
 │   └── test-cli.sh          # Tests all ralph CLI commands (Bash)
-├── backends/                # Backend configs (mirrors docker/cli/)
+├── self-healing/            # Self-healing loop tests
+│   ├── README.md            # Self-healing test documentation
+│   ├── run-all.sh           # Unit test runner
+│   ├── lib/                 # Test helpers and mocks
+│   ├── test-*.sh            # Individual unit test suites
+│   └── e2e/                 # E2E tests with real agents
+│       └── test-self-healing-e2e.sh
+├── backends/                # Backend configs (for Docker tests)
 │   ├── claude.sh            # Claude Code backend
 │   ├── gemini.sh            # Gemini backend
 │   ├── codex.sh             # OpenAI Codex backend
 │   └── opencode.sh          # OpenCode (Antigravity) backend
-└── auth/                    # Auth mode configs
+└── auth/                    # Auth mode configs (for Docker tests)
     ├── anthropic-oauth.sh   # Host ~/.claude OAuth (recommended)
     ├── anthropic-api.sh     # Direct Anthropic API
     ├── gemini-oauth.sh      # Host ~/.gemini OAuth
@@ -30,21 +62,11 @@ test/
     └── glm.sh               # z.ai GLM backend
 ```
 
-## Quick Start
+---
 
-```bash
-# Docker tests - Linux/Mac/WSL
-./test/test-all.sh
+# Docker & Auth Integration Tests
 
-# Docker tests - Windows PowerShell
-.\test\test-all.ps1
-
-# CLI tests - Windows PowerShell (recommended)
-.\test\cli\test-cli.ps1
-
-# CLI tests - Linux/Mac/WSL
-bash -c 'source test/cli/test-cli.sh'
-```
+`test-all.sh` validates Docker configurations and auth modes by actually running agents.
 
 ## What It Tests
 
@@ -62,9 +84,11 @@ bash -c 'source test/cli/test-cli.sh'
 | opencode-oauth | Host `~/.local/share/opencode` credentials |
 | GLM (z.ai) | z.ai backend with `GLM_AUTH_TOKEN` |
 
-## CLI Tests
+---
 
-The `test/cli/` directory contains tests for the Ralph CLI commands.
+# CLI Tests
+
+`cli/test-cli.sh` tests the Ralph CLI commands (no Docker required).
 
 **Tests included:**
 
@@ -85,15 +109,46 @@ The `test/cli/` directory contains tests for the Ralph CLI commands.
 | ralph new --builder-* | Builder options |
 | ralph new --max-iterations | Loop options |
 
-**Running CLI tests:**
+**Running:**
 
-```powershell
-# Windows PowerShell (recommended)
-.\test\cli\test-cli.ps1
-
-# Linux/Mac/WSL
+```bash
+# Windows/Linux/Mac
 bash -c 'source test/cli/test-cli.sh'
+
+# Windows PowerShell
+.\test\cli\test-cli.ps1
 ```
+
+---
+
+# Self-Healing Tests
+
+`self-healing/run-all.sh` tests the retry and recovery mechanisms (no Docker required).
+
+**Test suites:**
+
+| Suite | Tests | Description |
+|-------|-------|-------------|
+| test-preflight | 18 | Pre-flight validation (prompts, backends, credentials) |
+| test-reviewer-retry | 14 | Reviewer decision retry loop |
+| test-validation-loop | 13 | Task specification validation |
+| test-verify-loop | 24 | Build/test verification + remediation |
+
+**Running:**
+
+```bash
+# All self-healing tests
+bash -c 'source test/self-healing/run-all.sh'
+
+# Individual suite
+bash -c 'source test/self-healing/test-preflight.sh'
+```
+
+See [self-healing/README.md](self-healing/README.md) for detailed documentation.
+
+---
+
+# Docker Test Details
 
 ## How It Works
 

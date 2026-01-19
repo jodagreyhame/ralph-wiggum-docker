@@ -72,17 +72,39 @@ run_reviewer_phase() {
         return
     fi
 
-    # Run reviewer
+    # Retry loop for reviewer decision
+    local max_retries="${RALPH_REVIEWER_RETRY_MAX:-3}"
+    local attempt=0
     local review_live="$iter_dir/reviewer.live"
     local review_readable="$iter_dir/reviewer.readable"
-    set +eu
-    if [[ "$READABLE_OUTPUT" == "true" ]]; then
-        echo "$review_prompt" | eval "$CLI_CMD" 2>&1 | tee "$review_live" | filter_readable | tee "$review_readable"
-    else
-        echo "$review_prompt" | eval "$CLI_CMD" 2>&1 | tee "$review_live"
-        filter_readable < "$review_live" > "$review_readable" 2>/dev/null || true
-    fi
-    set -eu
+
+    while [[ $attempt -lt $max_retries ]]; do
+        attempt=$((attempt + 1))
+
+        # Build CLI command (first=fresh, subsequent=--continue)
+        local cli_cmd="$CLI_CMD"
+        local current_prompt="$review_prompt"
+        if [[ $attempt -gt 1 ]]; then
+            cli_cmd="$cli_cmd --continue"
+            current_prompt="You did not write a decision file. Please write your decision to .project/review/decision.txt with either PASS or FAIL."
+            log "${YELLOW}  No decision - retry $attempt/$max_retries${NC}"
+        fi
+
+        # Run reviewer
+        set +eu
+        if [[ "$READABLE_OUTPUT" == "true" ]]; then
+            echo "$current_prompt" | eval "$cli_cmd" 2>&1 | tee "$review_live" | filter_readable | tee "$review_readable"
+        else
+            echo "$current_prompt" | eval "$cli_cmd" 2>&1 | tee "$review_live"
+            filter_readable < "$review_live" > "$review_readable" 2>/dev/null || true
+        fi
+        set -eu
+
+        # Check for decision
+        if [[ -f "$REVIEW_DIR/decision.txt" ]]; then
+            break
+        fi
+    done
 
     # Restore builder CLI and auth
     CLI_CMD="$builder_cli_cmd"
@@ -90,7 +112,7 @@ run_reviewer_phase() {
     CLI_COLOR="$builder_cli_color"
     apply_auth_mode "$builder_auth_mode"
 
-    # Check reviewer decision
+    # Check reviewer decision (handles missing decision after all retries)
     if [[ -f "$REVIEW_DIR/decision.txt" ]]; then
         local decision=$(cat "$REVIEW_DIR/decision.txt" | tr -d '[:space:]' | tr '[:lower:]' '[:upper:]')
 
@@ -110,7 +132,13 @@ run_reviewer_phase() {
             fi
         fi
     else
-        log "${YELLOW}  No reviewer decision - continuing${NC}"
+        # No decision after all retries = treat as FAIL
+        log "${RED}  ✗ REVIEWER: No decision after $max_retries attempts - treating as FAIL${NC}"
+        increment_failure_count
+        check_escalation
+        rm -f "$COMPLETION_FILE"
+        # Write synthetic feedback
+        echo "Reviewer did not provide a decision after $max_retries attempts." > "$REVIEW_DIR/feedback.md"
     fi
 
     rm -f "$REVIEW_DIR/decision.txt"
@@ -163,23 +191,47 @@ run_architect_phase() {
         return 1
     fi
 
-    # Run architect
+    # Retry loop for architect decision
+    local max_retries="${RALPH_ARCHITECT_RETRY_MAX:-3}"
+    local attempt=0
     local arch_live="$iter_dir/architect.live"
     local arch_readable="$iter_dir/architect.readable"
-    set +eu
-    if [[ "$READABLE_OUTPUT" == "true" ]]; then
-        echo "$architect_prompt" | eval "$CLI_CMD" 2>&1 | tee "$arch_live" | filter_readable | tee "$arch_readable"
-    else
-        echo "$architect_prompt" | eval "$CLI_CMD" 2>&1 | tee "$arch_live"
-        filter_readable < "$arch_live" > "$arch_readable" 2>/dev/null || true
-    fi
-    set -eu
+    local session_marked=false
 
-    # Mark architect session as started (for resume mode)
-    if [[ "$ARCHITECT_SESSION_MODE" == "resume" ]] && [[ ! -f "$architect_session_marker" ]]; then
-        mkdir -p "$(dirname "$architect_session_marker")"
-        echo "$(date -Iseconds)" > "$architect_session_marker"
-    fi
+    while [[ $attempt -lt $max_retries ]]; do
+        attempt=$((attempt + 1))
+
+        # Build CLI command (first=fresh/resume per session mode, subsequent=--continue)
+        local cli_cmd="$CLI_CMD"
+        local current_prompt="$architect_prompt"
+        if [[ $attempt -gt 1 ]]; then
+            cli_cmd="$cli_cmd --continue"
+            current_prompt="You did not write a decision file. Please write your decision to .project/architect/decision.txt with either APPROVE or REJECT."
+            log "${YELLOW}  No decision - retry $attempt/$max_retries${NC}"
+        fi
+
+        # Run architect
+        set +eu
+        if [[ "$READABLE_OUTPUT" == "true" ]]; then
+            echo "$current_prompt" | eval "$cli_cmd" 2>&1 | tee "$arch_live" | filter_readable | tee "$arch_readable"
+        else
+            echo "$current_prompt" | eval "$cli_cmd" 2>&1 | tee "$arch_live"
+            filter_readable < "$arch_live" > "$arch_readable" 2>/dev/null || true
+        fi
+        set -eu
+
+        # Mark architect session as started (for resume mode) - only once
+        if [[ "$session_marked" != "true" ]] && [[ "$ARCHITECT_SESSION_MODE" == "resume" ]] && [[ ! -f "$architect_session_marker" ]]; then
+            mkdir -p "$(dirname "$architect_session_marker")"
+            echo "$(date -Iseconds)" > "$architect_session_marker"
+            session_marked=true
+        fi
+
+        # Check for decision
+        if [[ -f "$ARCHITECT_DIR/decision.txt" ]]; then
+            break
+        fi
+    done
 
     # Restore builder CLI and auth
     CLI_CMD="$builder_cli_cmd"
@@ -187,7 +239,7 @@ run_architect_phase() {
     CLI_COLOR="$builder_cli_color"
     apply_auth_mode "$builder_auth_mode"
 
-    # Check architect decision
+    # Check architect decision (handles missing decision after all retries)
     if [[ -f "$ARCHITECT_DIR/decision.txt" ]]; then
         local arch_decision=$(cat "$ARCHITECT_DIR/decision.txt" | tr -d '[:space:]' | tr '[:lower:]' '[:upper:]')
 
@@ -214,7 +266,11 @@ run_architect_phase() {
             fi
         fi
     else
-        log "${YELLOW}  No architect decision - continuing${NC}"
+        # No decision after all retries = treat as REJECT
+        log "${RED}  ✗ ARCHITECT: No decision after $max_retries attempts - treating as REJECT${NC}"
+        rm -f "$COMPLETION_FILE"
+        # Write synthetic feedback
+        echo "Architect did not provide a decision after $max_retries attempts." > "$ARCHITECT_DIR/feedback.md"
     fi
 
     rm -f "$ARCHITECT_DIR/decision.txt"

@@ -199,6 +199,16 @@ if [[ -f "$CONFIG_FILE" ]]; then
     PROVIDER_FALLBACK_SEQUENCE=$(jq -c '.provider_fallback.sequence // ["claude","gemini","codex"]' "$CONFIG_FILE")
     PROVIDER_FALLBACK_AUTH_MODES=$(jq -c '.provider_fallback.auth_modes // {}' "$CONFIG_FILE")
 
+    # Self-healing loop configuration
+    REVIEWER_RETRY_MAX=$(jq -r '.self_healing.reviewer_retry_max // 3' "$CONFIG_FILE")
+    ARCHITECT_RETRY_MAX=$(jq -r '.self_healing.architect_retry_max // 3' "$CONFIG_FILE")
+    VALIDATION_ENABLED=$(jq -r '.self_healing.validation_enabled // false' "$CONFIG_FILE")
+    VALIDATION_MAX_ATTEMPTS=$(jq -r '.self_healing.validation_max_attempts // 5' "$CONFIG_FILE")
+    VERIFY_ENABLED=$(jq -r '.self_healing.verify_enabled // false' "$CONFIG_FILE")
+    VERIFY_AGENT_MAX=$(jq -r '.self_healing.verify_agent_max // 3' "$CONFIG_FILE")
+    ENABLE_REMEDIATION=$(jq -r '.self_healing.enable_remediation // false' "$CONFIG_FILE")
+    REMEDIATE_MAX=$(jq -r '.self_healing.remediate_max // 2' "$CONFIG_FILE")
+
     # Loop settings
     MAX_ITERATIONS=$(jq -r '.max_iterations' "$CONFIG_FILE")
     COMPLETION_ENABLED=$(jq -r '.completion_enabled' "$CONFIG_FILE")
@@ -338,6 +348,16 @@ export RALPH_PROVIDER_FALLBACK_ENABLED="$PROVIDER_FALLBACK_ENABLED"
 export RALPH_PROVIDER_FAILURE_THRESHOLD="$PROVIDER_FAILURE_THRESHOLD"
 export RALPH_PROVIDER_FALLBACK_SEQUENCE="$PROVIDER_FALLBACK_SEQUENCE"
 export RALPH_PROVIDER_FALLBACK_AUTH_MODES="$PROVIDER_FALLBACK_AUTH_MODES"
+
+# Export self-healing loop settings
+export RALPH_REVIEWER_RETRY_MAX="${REVIEWER_RETRY_MAX:-3}"
+export RALPH_ARCHITECT_RETRY_MAX="${ARCHITECT_RETRY_MAX:-3}"
+export RALPH_VALIDATION_ENABLED="${VALIDATION_ENABLED:-false}"
+export RALPH_VALIDATION_MAX_ATTEMPTS="${VALIDATION_MAX_ATTEMPTS:-5}"
+export RALPH_VERIFY_ENABLED="${VERIFY_ENABLED:-false}"
+export RALPH_VERIFY_AGENT_MAX="${VERIFY_AGENT_MAX:-3}"
+export RALPH_ENABLE_REMEDIATION="${ENABLE_REMEDIATION:-false}"
+export RALPH_REMEDIATE_MAX="${REMEDIATE_MAX:-2}"
 
 # Check if builder prompt exists
 if [[ ! -f "$RALPH_PROMPT_FILE" ]]; then

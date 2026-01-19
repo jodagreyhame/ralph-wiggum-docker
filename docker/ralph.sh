@@ -94,6 +94,9 @@ source "$SCRIPT_DIR/lib/provider-health.sh"
 source "$SCRIPT_DIR/lib/provider-switch.sh"
 source "$SCRIPT_DIR/lib/tasks.sh"
 source "$SCRIPT_DIR/lib/steering.sh"
+source "$SCRIPT_DIR/lib/preflight.sh"
+source "$SCRIPT_DIR/lib/validation.sh"
+source "$SCRIPT_DIR/lib/verify.sh"
 
 # Alias for provider modules
 STATE_DIR="$PROJECT_STATE_DIR"
@@ -105,11 +108,8 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
-# Check prompt file exists
-if [[ ! -f "$PROMPT_FILE" ]]; then
-    log "${RED}ERROR: Prompt file not found: $PROMPT_FILE${NC}"
-    exit 1
-fi
+# Run pre-flight validation (checks prompts, backends, credentials)
+validate_preflight
 
 PROMPT=$(cat "$PROMPT_FILE")
 
@@ -142,6 +142,12 @@ if ls "$LOG_DIR"/iteration_* 1>/dev/null 2>&1; then
     LAST_ITER=$((10#$LAST_ITER))
     START_ITER=$((LAST_ITER + 1))
     log "${DIM}Resuming from iteration $START_ITER${NC}"
+fi
+
+# Run validation loop for task specs (if enabled)
+if ! run_validation_loop; then
+    log "${RED}Task validation failed - exiting${NC}"
+    exit 1
 fi
 
 # ═══════════════════════════════════════════════════════════
@@ -236,18 +242,37 @@ for ((i=START_ITER; i<=MAX_ITERATIONS; i++)); do
 
         # Run architect phase (if reviewer passed)
         if run_architect_phase "$ITER_DIR" "$i" "$START_TIME"; then
+            # Run verification before final exit (if enabled)
+            if ! run_verify_loop "${CURRENT_TASK:-}" "$ITER_DIR"; then
+                log "${YELLOW}Verification failed - builder must retry${NC}"
+                rm -f "$COMPLETION_FILE"
+                continue
+            fi
             rm -f "$COMPLETION_FILE"
             exit 0
         fi
 
         # Check reviewer-only completion (no architect)
         if check_reviewer_completion "$i" "$START_TIME"; then
+            # Run verification before final exit (if enabled)
+            if ! run_verify_loop "${CURRENT_TASK:-}" "$ITER_DIR"; then
+                log "${YELLOW}Verification failed - builder must retry${NC}"
+                rm -f "$COMPLETION_FILE"
+                REVIEWER_PASSED=false  # Reset for next iteration
+                continue
+            fi
             rm -f "$COMPLETION_FILE"
             exit 0
         fi
 
         # Builder-only mode: if no reviewer enabled, check completion signal
         if check_completion_signal "$i" "$START_TIME"; then
+            # Run verification before final exit (if enabled)
+            if ! run_verify_loop "${CURRENT_TASK:-}" "$ITER_DIR"; then
+                log "${YELLOW}Verification failed - builder must retry${NC}"
+                rm -f "$COMPLETION_FILE"
+                continue
+            fi
             # Task mode: mark current task complete on successful completion
             if [[ "$TASK_MODE" == "true" ]] && [[ -n "${CURRENT_TASK:-}" ]]; then
                 mark_task_complete "$CURRENT_TASK"
