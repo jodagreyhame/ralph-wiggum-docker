@@ -66,8 +66,8 @@ I built this to **run safely while I sleep**. Docker provides complete isolation
 
 ```bash
 # 1. Steal the Death Star plans
-git clone https://github.com/anthropics/ralph-wiggum-docker-loop.git
-cd ralph-wiggum-docker-loop
+git clone https://github.com/jodagreyhame/ralph-wiggum-docker.git
+cd ralph-wiggum-docker
 
 # 2. Copy the sacred Holocron
 cp env.template .env
@@ -246,7 +246,7 @@ New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
   "builder": {
     "backend": "claude",
     "auth_mode": "glm",
-    "model": null,
+    "model": "glm-4.7",
     "session_mode": "fresh"
   },
 
@@ -254,20 +254,20 @@ New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
     "enabled": true,
     "backend": "claude",
     "auth_mode": "anthropic-oauth",
-    "model": null,
+    "model": "opus",
     "session_mode": "fresh"
   },
 
   "architect": {
     "enabled": true,
-    "backend": "gemini",
-    "auth_mode": "gemini-oauth",
-    "model": null,
+    "backend": "opencode",
+    "auth_mode": "opencode-oauth",
+    "model": "google/antigravity-gemini-3-pro",
     "session_mode": "resume"
   },
 
   "escalation": {
-    "enabled": false,
+    "enabled": true,
     "max_builder_failures": 3
   },
 
@@ -277,9 +277,16 @@ New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
     "sequence": [
       {"name": "glm", "backend": "claude", "auth_mode": "glm", "model": "glm-4.7"},
       {"name": "claude", "backend": "claude", "auth_mode": "anthropic-oauth", "model": "opus"},
-      {"name": "gemini", "backend": "gemini", "auth_mode": "gemini-oauth"},
-      {"name": "codex", "backend": "codex", "auth_mode": "openai-oauth"}
+      {"name": "gemini", "backend": "gemini", "auth_mode": "gemini-oauth", "model": "gemini-2.5-pro"},
+      {"name": "codex", "backend": "codex", "auth_mode": "openai-oauth"},
+      {"name": "opencode", "backend": "opencode", "auth_mode": "opencode-oauth", "model": "google/antigravity-claude-opus-4-5-thinking"}
     ]
+  },
+
+  "task_mode": {
+    "enabled": false,
+    "specs_dir": ".project/specs/tasks",
+    "steering_file": ".project/steering.md"
   },
 
   "max_iterations": 0,
@@ -308,7 +315,7 @@ New-Item -ItemType HardLink -Path CLAUDE.md -Target AGENTS.md
 | `fresh` | Starts a new session each iteration — no memory of previous runs | Builder & Reviewer — they only need current iteration context |
 | `resume` | Continues the same session across iterations — full conversation history | Architect — needs complete context of all reviews to make informed final decisions |
 
-**Why Gemini for Architect?** Gemini's 1M token context window can hold the entire project history — every iteration, every review, every piece of feedback. When the Architect makes the final call, it sees everything. *"The archives are complete."*
+**Why large-context models for Architect?** Models with large context windows (Gemini 1M, OpenCode) can hold the entire project history — every iteration, every review, every piece of feedback. When the Architect makes the final call, it sees everything. *"The archives are complete."*
 
 </details>
 
@@ -608,15 +615,46 @@ tail -f .projects/my-project/logs/current.readable
 ## Project Structure
 
 ```
-ralph-wiggum-docker-loop/
+ralph-wiggum-docker/
 ├── README.md                     # This file
 ├── CLAUDE.md                     # Project instructions
 ├── docker-compose.yml            # Container orchestration
 ├── env.template                  # Environment template
+├── package.json                  # CLI dependencies
+├── src/                          # CLI source code
+│   └── cli/                      # Ralph CLI commands
 ├── docker/                       # The Fleet
 │   ├── Dockerfile
-│   ├── ralph.sh                  # Hyperspace calculator
-│   └── lib/                      # Kyber crystals
+│   ├── entrypoint.sh             # Config parsing, env setup
+│   ├── ralph.sh                  # Main loop script
+│   ├── cli/                      # Backend configs
+│   │   ├── claude.sh
+│   │   ├── gemini.sh
+│   │   ├── codex.sh
+│   │   └── opencode.sh
+│   ├── lib/                      # Library modules
+│   │   ├── colors.sh             # Terminal colors
+│   │   ├── display.sh            # Banners, logging
+│   │   ├── filter.sh             # Output filtering
+│   │   ├── tracking.sh           # Git diff tracking
+│   │   ├── escalation.sh         # Role escalation
+│   │   ├── phases.sh             # Reviewer/architect phases
+│   │   ├── completion.sh         # Completion detection
+│   │   ├── feedback.sh           # Feedback injection
+│   │   ├── preflight.sh          # Pre-flight validation
+│   │   ├── validation.sh         # Task validation
+│   │   ├── verify.sh             # Build/test verification
+│   │   ├── provider-health.sh    # Provider health tracking
+│   │   ├── provider-switch.sh    # Provider fallback
+│   │   └── ...                   # Additional modules
+│   ├── formatter/                # JS output formatter
+│   └── parsers/                  # JQ parsers for backends
+├── template/                     # Project template
+│   ├── GOAL.md                   # Project objective
+│   ├── AGENTS.md                 # Development rules
+│   ├── config.json               # Default config
+│   ├── .project/prompts/         # Role prompts
+│   └── .project/specs/tasks/     # Task specifications
 ├── static/                       # Visual Assets
 │   ├── starfield.svg             # Animated header
 │   ├── crawl.svg                 # Opening crawl
@@ -626,7 +664,16 @@ ralph-wiggum-docker-loop/
 ├── scripts/                      # Launcher scripts
 │   ├── run.sh                    # Unix launcher
 │   └── run.ps1                   # Windows launcher
-└── .projects/                    # The Galaxy
+├── test/                         # Test suite
+│   ├── test-all.sh               # Main test runner
+│   ├── auth/                     # Auth mode tests
+│   ├── backends/                 # Backend tests
+│   ├── cli/                      # CLI tests
+│   └── self-healing/             # Self-healing tests
+├── docs/                         # Documentation
+│   ├── CLI.md                    # CLI reference
+│   └── TROUBLESHOOTING.md        # Troubleshooting guide
+└── .projects/                    # The Galaxy (gitignored)
     └── <project>/                # Each star system
         ├── GOAL.md               # Your mission orders
         ├── AGENTS.md             # The Jedi Code (canonical)
@@ -636,7 +683,8 @@ ralph-wiggum-docker-loop/
         │   ├── prompts/          # Role prompts
         │   ├── state/            # Current coordinates
         │   ├── review/           # Council chambers
-        │   └── architect/        # Senate records
+        │   ├── architect/        # Senate records
+        │   └── specs/tasks/      # Task specifications
         └── logs/                 # Ship's log
 ```
 

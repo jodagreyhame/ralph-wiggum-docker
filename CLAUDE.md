@@ -97,28 +97,28 @@ ralph -p <path> -s progress   # Progress view
   "builder": {
     "backend": "claude",
     "auth_mode": "glm",
-    "model": null,
+    "model": "glm-4.7",
     "session_mode": "fresh"
   },
 
   "reviewer": {
-    "enabled": false,
+    "enabled": true,
     "backend": "claude",
     "auth_mode": "anthropic-oauth",
-    "model": null,
+    "model": "opus",
     "session_mode": "fresh"
   },
 
   "architect": {
-    "enabled": false,
-    "backend": "gemini",
-    "auth_mode": "gemini-oauth",
-    "model": null,
+    "enabled": true,
+    "backend": "opencode",
+    "auth_mode": "opencode-oauth",
+    "model": "google/antigravity-gemini-3-pro",
     "session_mode": "resume"
   },
 
   "escalation": {
-    "enabled": false,
+    "enabled": true,
     "max_builder_failures": 3
   },
 
@@ -132,6 +132,12 @@ ralph -p <path> -s progress   # Progress view
       {"name": "codex", "backend": "codex", "auth_mode": "openai-oauth"},
       {"name": "opencode", "backend": "opencode", "auth_mode": "opencode-oauth", "model": "google/antigravity-claude-opus-4-5-thinking"}
     ]
+  },
+
+  "task_mode": {
+    "enabled": false,
+    "specs_dir": ".project/specs/tasks",
+    "steering_file": ".project/steering.md"
   },
 
   "max_iterations": 0,
@@ -164,6 +170,9 @@ ralph -p <path> -s progress   # Progress view
 | | failure_threshold | number | CLI failures before switching (default: 10) |
 | | sequence | array | Provider fallback order (see formats below) |
 | | auth_modes | object | (Optional, string format only) Auth mode per provider |
+| **task_mode** | enabled | `true`/`false` | Enable task specifications |
+| | specs_dir | path | Directory for task spec files |
+| | steering_file | path | Steering file path |
 | **root** | max_iterations | number, 0=infinite | Stop after N iterations |
 | | completion_enabled | `true`/`false` | Enable file-based completion |
 
@@ -233,7 +242,7 @@ EOF
 ## Project Structure
 
 ```
-ralph-wiggum-docker-loop/
+ralph-wiggum-docker/
 ├── CLAUDE.md                     # This file
 ├── README.md                     # User documentation
 ├── docker-compose.yml            # Container orchestration
@@ -248,33 +257,53 @@ ralph-wiggum-docker-loop/
 │   ├── GOAL.md                   # Project objective template
 │   ├── AGENTS.md                 # Development rules (canonical)
 │   ├── config.json               # 3-tier config template
-│   └── .project/prompts/         # Role prompts (hidden)
-│       ├── BUILDER.md            # Builder workflow
-│       ├── REVIEWER.md           # Reviewer instructions
-│       └── ARCHITECT.md          # Architect instructions
+│   ├── .project/prompts/         # Role prompts
+│   │   ├── BUILDER.md            # Builder workflow
+│   │   ├── REVIEWER.md           # Reviewer instructions
+│   │   └── ARCHITECT.md          # Architect instructions
+│   └── .project/specs/tasks/     # Task specifications
+│       ├── schema.json           # Task JSON schema
+│       └── summary.json          # Task summary
 ├── docker/                       # Docker infrastructure
 │   ├── Dockerfile
 │   ├── entrypoint.sh             # Config parsing, env setup
-│   ├── ralph.sh                  # Main loop script (~220 lines)
+│   ├── ralph.sh                  # Main loop script
 │   ├── cli/                      # CLI backend configs
 │   │   ├── claude.sh
 │   │   ├── gemini.sh
 │   │   ├── codex.sh
 │   │   └── opencode.sh
-│   └── lib/                      # Library modules
-│       ├── colors.sh             # Terminal colors
-│       ├── display.sh            # Banners, logging
-│       ├── filter.sh             # Output filtering
-│       ├── tracking.sh           # Git diff tracking
-│       ├── escalation.sh         # Role escalation logic
-│       ├── phases.sh             # Reviewer/architect phases
-│       ├── completion.sh         # Completion detection
-│       └── feedback.sh           # Feedback injection
+│   ├── lib/                      # Library modules
+│   │   ├── colors.sh             # Terminal colors
+│   │   ├── display.sh            # Banners, logging
+│   │   ├── filter.sh             # Output filtering
+│   │   ├── tracking.sh           # Git diff tracking
+│   │   ├── escalation.sh         # Role escalation logic
+│   │   ├── phases.sh             # Reviewer/architect phases
+│   │   ├── completion.sh         # Completion detection
+│   │   ├── feedback.sh           # Feedback injection
+│   │   ├── preflight.sh          # Pre-flight validation
+│   │   ├── validation.sh         # Task validation loop
+│   │   ├── verify.sh             # Build/test verification
+│   │   ├── provider-health.sh    # Provider health tracking
+│   │   ├── provider-switch.sh    # Provider fallback logic
+│   │   ├── env.sh                # Environment setup
+│   │   ├── steering.sh           # Task steering
+│   │   ├── tasks.sh              # Task management
+│   │   └── error-classifier.sh   # Error classification
+│   ├── formatter/                # JS output formatter
+│   └── parsers/                  # JQ parsers for backends
 ├── .projects/                    # All projects (gitignored)
 │   └── <project>/                # Each project (isolated)
 ├── test/                         # Test suite
-│   └── cli/                      # CLI tests
+│   ├── test-all.sh               # Main test runner
+│   ├── auth/                     # Auth mode tests
+│   ├── backends/                 # Backend tests
+│   ├── cli/                      # CLI tests
+│   └── self-healing/             # Self-healing tests
 ├── scripts/                      # Launcher scripts
+│   ├── run.sh                    # Unix launcher
+│   └── run.ps1                   # Windows launcher
 └── static/                       # Assets
 
 .projects/<project>/              # Each project (isolated)
@@ -299,6 +328,10 @@ ralph-wiggum-docker-loop/
 │   ├── architect/                # Architect state
 │   │   ├── decision.txt          # APPROVE/REJECT
 │   │   └── feedback.md           # If REJECT
+│   ├── specs/tasks/              # Task specifications
+│   │   ├── schema.json           # Task JSON schema
+│   │   ├── summary.json          # Task summary
+│   │   └── phase-*.json          # Phase task files
 │   └── knowledge/                # Patterns, failures
 ├── logs/                         # Iteration logs
 │   ├── session.log               # Full session log
