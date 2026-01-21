@@ -5,6 +5,18 @@ Full changelog with categorized changes from all commits.
 For a summary, see [CHANGELOG.md](../CHANGELOG.md).
 
 
+## [0.1.13] - 2026-01-20
+
+### Added
+- Add self-healing loops with comprehensive test suite
+
+### Fixed
+- Skip auto-release for release PRs to prevent infinite loop
+
+### Documentation
+- Fix incorrect repo URL and update documentation to match codebase
+
+
 ## [0.1.12] - 2026-01-18
 
 ### Added
@@ -177,3 +189,4 @@ Initial release.
 [0.1.10]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.9...v0.1.10
 [0.1.11]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.10...v0.1.11
 [0.1.12]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.11...v0.1.12
+[0.1.13]: https://github.com/jodagreyhame/ralph-wiggum-docker/compare/v0.1.12...v0.1.13
