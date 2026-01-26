@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/blessed": "^0.1.25",
     "@types/node": "^25.0.10",
-    "oxfmt": "^0.26.0",
+    "oxfmt": "^0.27.0",
     "oxlint": "^1.39.0",
     "typescript": "~5.7.3"
   },
