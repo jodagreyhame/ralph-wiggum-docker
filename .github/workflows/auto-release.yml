@@ -340,7 +340,7 @@ jobs:
 
       - name: Add comment to triggering PR
         if: steps.check.outputs.should_release == 'true' && steps.release_pr.outputs.pr_created == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.RELEASE_TOKEN }}
           script: |
